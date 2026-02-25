@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Scrappy Bird — Junkyard Edition</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Bungee&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --rust: #b5451b;
+    --rust-dark: #7a2a08;
+    --rust-light: #e06030;
+    --steel: #5a6068;
+    --steel-light: #8a9098;
+    --grime: #2a2318;
+    --smoke: #3a3830;
+    --accent: #ff6a00;
+    --glow: rgba(255,106,0,0.7);
+    --score-color: #ffcc88;
+    --grunge: #1a1710;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: #0a0a08;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bungee', monospace;
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  #gameWrapper {
+    position: relative;
+    width: min(768px, 100vw);
+    aspect-ratio: 768 / 1024;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #ui {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  #score {
+    position: absolute;
+    top: 36px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Bungee Shade', cursive;
+    font-size: clamp(30px, 5.5vw, 52px);
+    color: var(--accent);
+    text-shadow: 3px 3px 0 #000, 0 0 24px var(--glow);
+    letter-spacing: 6px;
+    z-index: 10;
+  }
+
+  #overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px;
+    background: rgba(10,10,6,0.82);
+    backdrop-filter: blur(5px);
+    z-index: 20;
+    pointer-events: all;
+    transition: opacity 0.4s;
+  }
+
+  #overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .game-title {
+    font-family: 'Bungee Shade', cursive;
+    font-size: clamp(36px, 7.5vw, 72px);
+    color: var(--rust-light);
+    text-shadow: 5px 5px 0 #3a1005, 0 0 50px var(--glow);
+    text-align: center;
+    line-height: 1.2;
+    animation: titleBob 2s ease-in-out infinite;
+    letter-spacing: 4px;
+  }
+
+  .emoji-bird {
+    font-size: clamp(50px, 9vw, 90px);
+    animation: titleBob 2s ease-in-out infinite reverse;
+    filter: drop-shadow(0 0 12px rgba(255,106,0,0.6));
+  }
+
+  @keyframes titleBob {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-14px) rotate(2deg); }
+  }
+
+  .subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(10px, 1.8vw, 15px);
+    color: #8a8070;
+    text-align: center;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .tap-prompt {
+    font-family: 'Bungee', cursive;
+    font-size: clamp(13px, 2.4vw, 20px);
+    color: var(--accent);
+    animation: blink 0.9s step-end infinite;
+    margin-top: 8px;
+    letter-spacing: 3px;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .best-score {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(10px, 1.8vw, 14px);
+    color: #c08060;
+    text-shadow: 1px 1px 0 #000;
+    letter-spacing: 2px;
+  }
+
+  #deathScreen {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px;
+    background: rgba(10,6,4,0.88);
+    backdrop-filter: blur(7px);
+    z-index: 25;
+    pointer-events: all;
+    transition: opacity 0.3s;
+  }
+
+  #deathScreen.hidden { opacity: 0; pointer-events: none; }
+
+  .death-title {
+    font-family: 'Bungee Shade', cursive;
+    font-size: clamp(24px, 5.5vw, 50px);
+    color: #cc3300;
+    text-shadow: 4px 4px 0 #500000, 0 0 40px rgba(200,50,0,0.9);
+    animation: shake 0.5s ease-out;
+    letter-spacing: 4px;
+  }
+
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-14px)}
+    40%{transform:translateX(14px)}
+    60%{transform:translateX(-8px)}
+    80%{transform:translateX(8px)}
+  }
+
+  .score-board {
+    background: rgba(20,14,8,0.85);
+    border: 3px solid var(--rust);
+    border-radius: 6px;
+    padding: 22px 44px;
+    text-align: center;
+    box-shadow: 0 0 24px rgba(181,69,27,0.5), inset 0 0 20px rgba(0,0,0,0.5);
+    position: relative;
+  }
+
+  .score-board::before {
+    content: '';
+    position: absolute;
+    top: -3px; left: -3px; right: -3px; bottom: -3px;
+    border-radius: 6px;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(181,69,27,0.08) 4px,
+      rgba(181,69,27,0.08) 8px
+    );
+    pointer-events: none;
+  }
+
+  .score-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(9px, 1.6vw, 12px);
+    color: #7a6050;
+    margin-bottom: 6px;
+    letter-spacing: 4px;
+  }
+
+  .score-val {
+    font-family: 'Bungee Shade', cursive;
+    font-size: clamp(22px, 4.5vw, 40px);
+    color: var(--accent);
+    text-shadow: 2px 2px 0 #000;
+  }
+
+  .score-best {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(9px, 1.6vw, 12px);
+    color: #c08060;
+    margin-top: 10px;
+    letter-spacing: 2px;
+  }
+
+  .play-btn {
+    font-family: 'Bungee', cursive;
+    font-size: clamp(13px, 2.4vw, 20px);
+    background: linear-gradient(180deg, #c04010 0%, #802808 100%);
+    color: #ffe8d0;
+    border: 3px solid #e05020;
+    border-radius: 4px;
+    padding: 14px 36px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #401404, 0 0 20px var(--glow);
+    transition: transform 0.1s, box-shadow 0.1s;
+    pointer-events: all;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .play-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #401404;
+  }
+</style>
+</head>
+<body>
+<div id="gameWrapper">
+  <canvas id="canvas"></canvas>
+  <div id="ui"><div id="score">0</div></div>
+
+  <div id="overlay">
+    <div class="emoji-bird">🐦‍⬛</div>
+    <div class="game-title">SCRAPPY<br>BIRD</div>
+    <div class="subtitle">⚙ Junkyard Edition ⚙</div>
+    <div class="best-score" id="startBest">BEST: 0</div>
+    <div class="tap-prompt">[ TAP TO FLY ]</div>
+  </div>
+
+  <div id="deathScreen" class="hidden">
+    <div class="death-title">SCRAPPED!</div>
+    <div class="score-board">
+      <div class="score-label">— SCORE —</div>
+      <div class="score-val" id="finalScore">0</div>
+      <div class="score-best" id="finalBest">BEST: 0</div>
+    </div>
+    <button class="play-btn" id="retryBtn">↩ TRY AGAIN</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = 768, H = 1024;
+canvas.width = W; canvas.height = H;
+
+const overlay = document.getElementById('overlay');
+const deathScreen = document.getElementById('deathScreen');
+const scoreEl = document.getElementById('score');
+const finalScoreEl = document.getElementById('finalScore');
+const finalBestEl = document.getElementById('finalBest');
+const startBestEl = document.getElementById('startBest');
+const retryBtn = document.getElementById('retryBtn');
+
+let state = 'menu';
+let score = 0;
+let best = parseInt(localStorage.getItem('scrappyBest') || '0');
+let animFrame, lastTime = 0;
+
+const GROUND_H = 130;
+const GROUND_Y = H - GROUND_H;
+
+// Bird (scrappy crow)
+const bird = {
+  x: 180, y: H / 2 - 40,
+  vy: 0,
+  r: 26,
+  angle: 0,
+  flapAnim: 0,
+  wingUp: false,
+  particles: [],
+};
+
+const GRAVITY = 1800;
+const FLAP_V = -560;
+
+// I-Beams (obstacles)
+const BEAM_W = 100;        // web width
+const FLANGE_W = 140;      // flange width
+const FLANGE_H = 28;       // flange thickness
+const BEAM_GAP = 300;
+const BEAM_SPEED_BASE = 250;
+const BEAM_INTERVAL = 330;
+let beams = [];
+let beamProgress = 0;
+
+// Smoke puffs
+let smokes = [];
+for (let i = 0; i < 8; i++) {
+  smokes.push({
+    x: Math.random() * W,
+    y: 80 + Math.random() * 340,
+    r: 30 + Math.random() * 60,
+    speed: 8 + Math.random() * 18,
+    opacity: 0.05 + Math.random() * 0.12,
+    drift: (Math.random() - 0.5) * 10,
+  });
+}
+
+// Background junk silhouettes (cranes, scrap piles)
+const junks = [];
+for (let i = 0; i < 12; i++) {
+  junks.push({
+    x: Math.random() * W,
+    y: GROUND_Y - 40 - Math.random() * 200,
+    w: 20 + Math.random() * 60,
+    h: 40 + Math.random() * 160,
+    type: Math.floor(Math.random() * 3),
+  });
+}
+
+// Ground sparks / debris
+let groundX = 0;
+
+// Rust noise offsets for beams
+function rustColor(base, variation) {
+  const v = (Math.random() - 0.5) * variation;
+  return base;
+}
+
+function flap() {
+  if (state === 'menu') {
+    state = 'playing';
+    overlay.classList.add('hidden');
+    beams = [];
+    score = 0;
+    scoreEl.textContent = '0';
+    bird.y = H / 2 - 40;
+    bird.vy = 0;
+    beamProgress = 0;
+  }
+  if (state === 'playing') {
+    bird.vy = FLAP_V;
+    bird.wingUp = true;
+    bird.flapAnim = 0;
+    spawnParticles();
+  }
+}
+
+function spawnParticles() {
+  for (let i = 0; i < 6; i++) {
+    bird.particles.push({
+      x: bird.x - 20,
+      y: bird.y + 10,
+      vx: -100 - Math.random() * 80,
+      vy: (Math.random() - 0.5) * 120,
+      life: 1,
+      r: 3 + Math.random() * 5,
+      // Rusty feather-fleck colors
+      color: ['#8a7060','#c09070','#604030','#a08060'][Math.floor(Math.random()*4)]
+    });
+  }
+}
+
+function spawnBeam() {
+  const minY = 180;
+  const maxY = GROUND_Y - BEAM_GAP - 180;
+  const gapY = minY + Math.random() * (maxY - minY);
+  // Rust seed per beam
+  const rustSeed = Math.random();
+  beams.push({ x: W + 60, gapY, passed: false, rustSeed });
+}
+
+function getBeamSpeed() {
+  return BEAM_SPEED_BASE + Math.min(score * 9, 200);
+}
+
+function die() {
+  state = 'dead';
+  if (score > best) {
+    best = score;
+    localStorage.setItem('scrappyBest', best);
+  }
+  finalScoreEl.textContent = score;
+  finalBestEl.textContent = 'BEST: ' + best;
+  startBestEl.textContent = 'BEST: ' + best;
+  deathScreen.classList.remove('hidden');
+}
+
+function reset() {
+  deathScreen.classList.add('hidden');
+  state = 'playing';
+  score = 0;
+  scoreEl.textContent = '0';
+  bird.y = H / 2 - 40;
+  bird.vy = 0;
+  bird.angle = 0;
+  bird.particles = [];
+  beams = [];
+  beamProgress = 0;
+}
+
+// ─── DRAWING ─────────────────────────────────────────────────────────────────
+
+function drawSky() {
+  // Smoggy industrial sky — brighter, hazy amber/grey
+  const grad = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+  grad.addColorStop(0, '#5a5040');
+  grad.addColorStop(0.35, '#7a6a4a');
+  grad.addColorStop(0.7, '#a07840');
+  grad.addColorStop(1, '#c09050');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, GROUND_Y);
+
+  // Hazy sun disc
+  const sun = ctx.createRadialGradient(W * 0.75, 160, 10, W * 0.75, 160, 120);
+  sun.addColorStop(0, 'rgba(255,220,120,0.55)');
+  sun.addColorStop(0.4, 'rgba(255,180,60,0.25)');
+  sun.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = sun;
+  ctx.fillRect(0, 0, W, GROUND_Y);
+
+  // Distant orange glow (fire/furnace on horizon)
+  const fireGlow = ctx.createRadialGradient(W * 0.7, GROUND_Y, 20, W * 0.7, GROUND_Y, 320);
+  fireGlow.addColorStop(0, 'rgba(255,120,20,0.4)');
+  fireGlow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = fireGlow;
+  ctx.fillRect(0, 0, W, GROUND_Y);
+
+  const fireGlow2 = ctx.createRadialGradient(W * 0.15, GROUND_Y, 10, W * 0.15, GROUND_Y, 240);
+  fireGlow2.addColorStop(0, 'rgba(220,90,10,0.3)');
+  fireGlow2.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = fireGlow2;
+  ctx.fillRect(0, 0, W, GROUND_Y);
+}
+
+function drawSmoke(t) {
+  for (const s of smokes) {
+    ctx.save();
+    ctx.globalAlpha = s.opacity * (0.7 + 0.3 * Math.sin(t * 0.5 + s.x));
+    const sg = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r);
+    sg.addColorStop(0, 'rgba(210,190,150,0.55)');
+    sg.addColorStop(1, 'rgba(180,160,120,0)');
+    ctx.fillStyle = sg;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawJunkSilhouettes() {
+  ctx.fillStyle = '#3a2e1e';
+  for (const j of junks) {
+    if (j.type === 0) {
+      // Scrap pile - triangle mound
+      ctx.beginPath();
+      ctx.moveTo(j.x - j.w, GROUND_Y);
+      ctx.lineTo(j.x, j.y);
+      ctx.lineTo(j.x + j.w, GROUND_Y);
+      ctx.fill();
+    } else if (j.type === 1) {
+      // Crane tower
+      ctx.fillRect(j.x - 8, j.y, 16, GROUND_Y - j.y);
+      // Boom arm
+      ctx.fillRect(j.x - 8, j.y, j.w, 10);
+      // Cable
+      ctx.fillRect(j.x + j.w - 4, j.y, 4, 40);
+    } else {
+      // Stacked car silhouette
+      ctx.fillRect(j.x - j.w/2, j.y + j.h*0.4, j.w, j.h*0.6);
+      ctx.fillRect(j.x - j.w*0.35, j.y, j.w*0.7, j.h*0.45);
+    }
+  }
+}
+
+function drawGround() {
+  // Concrete/dirt base
+  const grad = ctx.createLinearGradient(0, GROUND_Y, 0, H);
+  grad.addColorStop(0, '#3a3228');
+  grad.addColorStop(0.15, '#2a2218');
+  grad.addColorStop(1, '#18140c');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, GROUND_Y, W, GROUND_H);
+
+  // Ground surface line
+  ctx.fillStyle = '#4a3e2e';
+  ctx.fillRect(0, GROUND_Y, W, 6);
+
+  // Ground debris: bolts, scrap bits
+  const step = 55;
+  const off = groundX % step;
+  for (let x = -step + off; x < W + step; x += step) {
+    // Random scrap on ground
+    const h2 = 4 + ((x * 7919) % 12);
+    const w2 = 8 + ((x * 3571) % 20);
+    ctx.fillStyle = `hsl(${20 + (x*13)%30}, 40%, 20%)`;
+    ctx.fillRect(x, GROUND_Y + 6, w2, h2);
+
+    // Bolt
+    ctx.fillStyle = '#5a5040';
+    ctx.beginPath();
+    ctx.arc(x + w2 + 8, GROUND_Y + 10, 4, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // Oil stains
+  for (let x = -80 + (groundX*0.3 % 200); x < W + 100; x += 200) {
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    const og = ctx.createRadialGradient(x, GROUND_Y + 30, 0, x, GROUND_Y + 30, 50);
+    og.addColorStop(0, '#000000');
+    og.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = og;
+    ctx.beginPath();
+    ctx.ellipse(x, GROUND_Y + 25, 55, 20, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// Draw an I-beam obstacle
+function drawIBeam(beam, t) {
+  const x = beam.x;
+  const topEndY = beam.gapY;       // bottom of top beam
+  const botStartY = beam.gapY + BEAM_GAP; // top of bottom beam
+
+  const rs = beam.rustSeed;
+
+  // Helper: draw one I-beam segment filling from y1 to y2 (can be top or bottom)
+  function drawBeamSegment(y1, y2) {
+    if (y2 - y1 <= 0) return;
+    const bx = x - BEAM_W / 2;
+    const bw = BEAM_W;
+
+    // Main web (vertical center piece)
+    const webGrad = ctx.createLinearGradient(bx, 0, bx + bw, 0);
+    webGrad.addColorStop(0,   '#3a2010');
+    webGrad.addColorStop(0.15, '#7a3818');
+    webGrad.addColorStop(0.5, '#8a4020');
+    webGrad.addColorStop(0.85,'#6a3015');
+    webGrad.addColorStop(1,   '#2a1808');
+    ctx.fillStyle = webGrad;
+    ctx.fillRect(bx, y1, bw, y2 - y1);
+
+    // Rust streaks on web
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    for (let ry = y1; ry < y2; ry += 18 + (rs*7|0)) {
+      const rw = 3 + (rs * 5) | 0;
+      ctx.fillStyle = '#c05020';
+      ctx.fillRect(bx + 10 + (rs*20|0), ry, rw, 10 + (rs*8|0));
+      ctx.fillRect(bx + bw - 20 - (rs*15|0), ry + 5, rw - 1, 8);
+    }
+    ctx.restore();
+
+    // Web highlight (light edge)
+    ctx.fillStyle = 'rgba(255,180,100,0.06)';
+    ctx.fillRect(bx + 4, y1, 6, y2 - y1);
+
+    // Shadow on web right edge
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillRect(bx + bw - 6, y1, 6, y2 - y1);
+
+    // Flange helper
+    function drawFlange(fy, isTop) {
+      const fx = x - FLANGE_W / 2;
+      const fw = FLANGE_W;
+
+      // Flange main body
+      const flangeGrad = ctx.createLinearGradient(fx, fy, fx, fy + FLANGE_H);
+      flangeGrad.addColorStop(0, '#6a3018');
+      flangeGrad.addColorStop(0.3, '#9a4825');
+      flangeGrad.addColorStop(0.7, '#7a3818');
+      flangeGrad.addColorStop(1, '#3a1808');
+      ctx.fillStyle = flangeGrad;
+      ctx.fillRect(fx, fy, fw, FLANGE_H);
+
+      // Flange top highlight
+      ctx.fillStyle = 'rgba(255,160,80,0.12)';
+      ctx.fillRect(fx, fy, fw, 4);
+
+      // Flange underside shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(fx, fy + FLANGE_H - 4, fw, 4);
+
+      // Flange rust patches
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = '#d04010';
+      for (let i = 0; i < 4; i++) {
+        const rpx = fx + 10 + i * (fw / 4);
+        ctx.beginPath();
+        ctx.ellipse(rpx + rs*15, fy + FLANGE_H/2, 8 + rs*6, 5 + rs*3, 0, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Bolt heads on flanges
+      ctx.fillStyle = '#4a3020';
+      const boltPositions = [fx + 16, fx + fw - 16, fx + fw/2 - 10, fx + fw/2 + 10];
+      for (const bp of boltPositions) {
+        ctx.beginPath();
+        ctx.arc(bp, fy + FLANGE_H/2, 5, 0, Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle = '#6a4030';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        // Hex shape
+        ctx.strokeStyle = '#3a2010';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(bp, fy + FLANGE_H/2, 3, 0, Math.PI*2);
+        ctx.stroke();
+      }
+    }
+
+    // Draw end flange (the visible one at the gap)
+    if (/* top beam */ y2 === topEndY) {
+      drawFlange(y2 - FLANGE_H, false);
+    } else {
+      // bottom beam top flange
+      drawFlange(y1, true);
+    }
+  }
+
+  // Drop shadow behind beams
+  ctx.save();
+  ctx.globalAlpha = 0.3;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(x - FLANGE_W/2 + 10, 0, FLANGE_W, topEndY);
+  ctx.fillRect(x - FLANGE_W/2 + 10, botStartY, FLANGE_W, GROUND_Y - botStartY);
+  ctx.restore();
+
+  // Draw top I-beam (hanging from top)
+  drawBeamSegment(0, topEndY);
+
+  // Draw bottom I-beam (rising from ground)
+  drawBeamSegment(botStartY, GROUND_Y);
+
+  // Weld seam detail on top of each beam
+  ctx.save();
+  ctx.globalAlpha = 0.2;
+  ctx.strokeStyle = '#ff8040';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 8]);
+  ctx.beginPath();
+  ctx.moveTo(x - BEAM_W/2, 0);
+  ctx.lineTo(x - BEAM_W/2, topEndY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x - BEAM_W/2, botStartY);
+  ctx.lineTo(x - BEAM_W/2, GROUND_Y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+// Draw the scrappy crow bird
+function drawBird(t) {
+  const bx = bird.x, by = bird.y;
+  const ang = Math.max(-0.45, Math.min(Math.PI * 0.5, bird.angle));
+
+  ctx.save();
+  ctx.translate(bx, by);
+  ctx.rotate(ang);
+
+  // Drop shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.beginPath();
+  ctx.ellipse(6, 30, 20, 7, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // Tail feathers
+  ctx.fillStyle = '#1a1612';
+  ctx.beginPath();
+  ctx.moveTo(-18, 4);
+  ctx.lineTo(-46, -6);
+  ctx.lineTo(-40, 8);
+  ctx.lineTo(-46, 18);
+  ctx.lineTo(-18, 10);
+  ctx.closePath();
+  ctx.fill();
+
+  // Tail sheen
+  ctx.fillStyle = 'rgba(80,100,120,0.2)';
+  ctx.beginPath();
+  ctx.moveTo(-18, 4);
+  ctx.lineTo(-44, -4);
+  ctx.lineTo(-38, 6);
+  ctx.closePath();
+  ctx.fill();
+
+  // Body
+  const bodyGrad = ctx.createRadialGradient(-4, -6, 4, 0, 0, 30);
+  bodyGrad.addColorStop(0, '#3a3830');
+  bodyGrad.addColorStop(0.5, '#1e1c18');
+  bodyGrad.addColorStop(1, '#0e0c0a');
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 28, 22, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // Iridescent sheen on body
+  ctx.fillStyle = 'rgba(60,100,140,0.18)';
+  ctx.beginPath();
+  ctx.ellipse(-4, -6, 16, 10, -0.3, 0, Math.PI*2);
+  ctx.fill();
+
+  // Wing
+  const wingAngle = bird.wingUp
+    ? -0.9 - 0.4 * Math.cos(bird.flapAnim * Math.PI * 4)
+    : 0.25 + 0.2 * Math.sin(t * 7);
+  ctx.save();
+  ctx.rotate(wingAngle);
+  const wingGrad = ctx.createLinearGradient(-8, 0, 6, 20);
+  wingGrad.addColorStop(0, '#2e2c28');
+  wingGrad.addColorStop(1, '#0e0c0a');
+  ctx.fillStyle = wingGrad;
+  ctx.beginPath();
+  ctx.ellipse(-2, 6, 20, 11, -0.2, 0, Math.PI*2);
+  ctx.fill();
+  // Wing primary feathers
+  ctx.strokeStyle = '#3a3830';
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.moveTo(-2 + i*5 - 8, 14);
+    ctx.lineTo(-4 + i*5 - 8, 22 + i*2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Worn/ruffled chest patch
+  ctx.fillStyle = '#2e2820';
+  ctx.beginPath();
+  ctx.ellipse(6, 6, 12, 10, 0.2, 0, Math.PI*2);
+  ctx.fill();
+
+  // Eye ring
+  ctx.fillStyle = '#c05010';
+  ctx.beginPath();
+  ctx.arc(14, -8, 11, 0, Math.PI*2);
+  ctx.fill();
+
+  // Eye white / yellow iris
+  ctx.fillStyle = '#e8d040';
+  ctx.beginPath();
+  ctx.arc(14, -8, 8, 0, Math.PI*2);
+  ctx.fill();
+
+  // Pupil
+  ctx.fillStyle = '#0a0806';
+  ctx.beginPath();
+  ctx.arc(15, -7, 4.5, 0, Math.PI*2);
+  ctx.fill();
+
+  // Eye shine
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.beginPath();
+  ctx.arc(17, -9, 2, 0, Math.PI*2);
+  ctx.fill();
+
+  // Beak (hooked crow beak)
+  const beakGrad = ctx.createLinearGradient(20, -4, 42, 8);
+  beakGrad.addColorStop(0, '#4a4038');
+  beakGrad.addColorStop(1, '#1a1612');
+  ctx.fillStyle = beakGrad;
+  ctx.beginPath();
+  ctx.moveTo(20, -5);
+  ctx.lineTo(42, -2);
+  ctx.lineTo(36, 4);
+  ctx.lineTo(22, 4);
+  ctx.closePath();
+  ctx.fill();
+  // Beak hook
+  ctx.beginPath();
+  ctx.moveTo(42, -2);
+  ctx.lineTo(46, 2);
+  ctx.lineTo(38, 6);
+  ctx.lineTo(36, 4);
+  ctx.closePath();
+  ctx.fill();
+  // Beak highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  ctx.beginPath();
+  ctx.moveTo(22, -4);
+  ctx.lineTo(38, -2);
+  ctx.lineTo(36, 1);
+  ctx.lineTo(22, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawParticles() {
+  for (const p of bird.particles) {
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function collides(beam) {
+  const bx = bird.x, by = bird.y, br = bird.r;
+  // Check horizontal overlap with flange (wider collision)
+  const flangeLeft = beam.x - FLANGE_W / 2;
+  const flangeRight = beam.x + FLANGE_W / 2;
+  if (bx + br < flangeLeft || bx - br > flangeRight) return false;
+  const topEndY = beam.gapY;
+  const botStartY = beam.gapY + BEAM_GAP;
+  if (by - br < topEndY || by + br > botStartY) return true;
+  return false;
+}
+
+// ─── UPDATE ──────────────────────────────────────────────────────────────────
+
+function update(dt, t) {
+  if (state !== 'playing') return;
+
+  bird.vy += GRAVITY * dt;
+  bird.y += bird.vy * dt;
+  bird.angle = bird.vy * 0.0012;
+  bird.flapAnim = Math.min(1, bird.flapAnim + dt * 6);
+  if (bird.flapAnim >= 1) bird.wingUp = false;
+
+  // Particles
+  for (const p of bird.particles) {
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vy += 500 * dt;
+    p.life -= dt * 2.8;
+  }
+  bird.particles = bird.particles.filter(p => p.life > 0);
+
+  if (bird.y + bird.r >= GROUND_Y) { bird.y = GROUND_Y - bird.r; die(); return; }
+  if (bird.y - bird.r <= 0) { bird.y = bird.r; bird.vy = 0; }
+
+  groundX -= getBeamSpeed() * dt;
+
+  // Smoke drift
+  for (const s of smokes) {
+    s.x += s.drift * dt;
+    s.y -= s.speed * dt * 0.3;
+    if (s.y < -s.r * 2) { s.y = GROUND_Y + s.r; s.x = Math.random() * W; }
+  }
+
+  // Beams
+  const speed = getBeamSpeed();
+  beamProgress += speed * dt;
+  while (beamProgress >= BEAM_INTERVAL) {
+    beamProgress -= BEAM_INTERVAL;
+    spawnBeam();
+  }
+
+  for (const beam of beams) {
+    beam.x -= speed * dt;
+    if (!beam.passed && beam.x + FLANGE_W / 2 < bird.x) {
+      beam.passed = true;
+      score++;
+      scoreEl.textContent = score;
+    }
+    if (collides(beam)) { die(); return; }
+  }
+  beams = beams.filter(b => b.x > -FLANGE_W - 20);
+}
+
+function draw(t) {
+  ctx.clearRect(0, 0, W, H);
+  drawSky();
+  drawSmoke(t);
+  drawJunkSilhouettes();
+  for (const b of beams) drawIBeam(b, t);
+  drawGround();
+  drawParticles();
+  drawBird(t);
+}
+
+// ─── LOOPS ───────────────────────────────────────────────────────────────────
+
+function loop(ts) {
+  animFrame = requestAnimationFrame(loop);
+  const dt = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+  update(dt, ts/1000);
+  draw(ts/1000);
+}
+
+function idleLoop(ts) {
+  const dt = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+  const t = ts / 1000;
+  if (state === 'menu') {
+    bird.y = H / 2 - 40 + Math.sin(t * 1.8) * 22;
+    bird.angle = Math.sin(t * 1.8) * 0.1;
+    groundX -= 50 * dt;
+    for (const s of smokes) {
+      s.x += s.drift * dt;
+      s.y -= s.speed * dt * 0.3;
+      if (s.y < -s.r * 2) { s.y = GROUND_Y + s.r; s.x = Math.random() * W; }
+    }
+  }
+  draw(t);
+  if (state === 'menu' || state === 'dead') {
+    animFrame = requestAnimationFrame(idleLoop);
+  } else {
+    lastTime = performance.now();
+    animFrame = requestAnimationFrame(loop);
+  }
+}
+
+function startIdle() {
+  cancelAnimationFrame(animFrame);
+  lastTime = performance.now();
+  animFrame = requestAnimationFrame(function f(ts) {
+    lastTime = ts;
+    animFrame = requestAnimationFrame(idleLoop);
+  });
+}
+
+// ─── INPUT ───────────────────────────────────────────────────────────────────
+
+document.addEventListener('keydown', e => { if (e.code === 'Space') flap(); });
+document.addEventListener('pointerdown', e => { if (state !== 'dead') flap(); });
+
+retryBtn.addEventListener('pointerdown', e => {
+  e.stopPropagation();
+  reset();
+  cancelAnimationFrame(animFrame);
+  lastTime = performance.now();
+  animFrame = requestAnimationFrame(loop);
+});
+
+startBestEl.textContent = 'BEST: ' + best;
+startIdle();
+</script>
+</body>
+</html>
