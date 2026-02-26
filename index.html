@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Scrappy Bird — Junkyard Edition</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Bungee&family=Share+Tech+Mono&display=swap');
@@ -26,17 +26,18 @@
   html, body {
     width: 100%; height: 100%;
     background: #0a0a08;
-    display: flex; align-items: center; justify-content: center;
+    margin: 0; padding: 0;
     font-family: 'Bungee', monospace;
     overflow: hidden;
     touch-action: none;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
   #gameWrapper {
-    position: relative;
-    width: min(768px, 100vw);
-    aspect-ratio: 768 / 1024;
-    max-height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
   }
 
@@ -139,7 +140,7 @@
     background: rgba(10,6,4,0.88);
     backdrop-filter: blur(7px);
     z-index: 25;
-    pointer-events: all;
+    pointer-events: none;
     transition: opacity 0.3s;
   }
 
@@ -245,7 +246,7 @@
     <div class="tap-prompt">[ TAP TO FLY ]</div>
   </div>
 
-  <div id="deathScreen" class="hidden">
+  <div id="deathScreen" style="display:none">
     <div class="death-title">SCRAPPED!</div>
     <div class="score-board">
       <div class="score-label">— SCORE —</div>
@@ -259,8 +260,22 @@
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const W = 768, H = 1024;
-canvas.width = W; canvas.height = H;
+
+// Dynamic sizing — canvas internal resolution matches device screen
+let W = window.innerWidth;
+let H = window.innerHeight;
+canvas.width = W;
+canvas.height = H;
+
+// Recalculate layout constants that depend on H
+function getGroundY() { return H - Math.round(H * 0.13); }
+
+window.addEventListener('resize', () => {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+});
 
 const overlay = document.getElementById('overlay');
 const deathScreen = document.getElementById('deathScreen');
@@ -275,12 +290,29 @@ let score = 0;
 let best = parseInt(localStorage.getItem('scrappyBest') || '0');
 let animFrame, lastTime = 0;
 
-const GROUND_H = 130;
-const GROUND_Y = H - GROUND_H;
+// Ground is 13% of screen height, recalculated on resize
+let GROUND_H = Math.round(H * 0.13);
+let GROUND_Y = H - GROUND_H;
+
+window.addEventListener('resize', () => {
+  GROUND_H = Math.round(H * 0.13);
+  GROUND_Y = H - GROUND_H;
+  // Rebuild junk silhouettes for new size
+  junks.length = 0;
+  for (let i = 0; i < 12; i++) {
+    junks.push({
+      x: Math.random() * W,
+      y: GROUND_Y - 40 - Math.random() * 200,
+      w: 20 + Math.random() * 60,
+      h: 40 + Math.random() * 160,
+      type: Math.floor(Math.random() * 3),
+    });
+  }
+});
 
 // Bird (scrappy crow)
 const bird = {
-  x: 180, y: H / 2 - 40,
+  x: Math.round(W * 0.23), y: H / 2 - 40,
   vy: 0,
   r: 26,
   angle: 0,
@@ -296,7 +328,8 @@ const FLAP_V = -560;
 const BEAM_W = 100;        // web width
 const FLANGE_W = 140;      // flange width
 const FLANGE_H = 28;       // flange thickness
-const BEAM_GAP = 300;
+let BEAM_GAP = Math.round(H * 0.30);
+window.addEventListener('resize', () => { BEAM_GAP = Math.round(H * 0.30); });
 const BEAM_SPEED_BASE = 250;
 const BEAM_INTERVAL = 330;
 let beams = [];
@@ -307,7 +340,7 @@ let smokes = [];
 for (let i = 0; i < 8; i++) {
   smokes.push({
     x: Math.random() * W,
-    y: 80 + Math.random() * 340,
+    y: 80 + Math.random() * (GROUND_Y * 0.4),
     r: 30 + Math.random() * 60,
     speed: 8 + Math.random() * 18,
     opacity: 0.05 + Math.random() * 0.12,
@@ -320,7 +353,7 @@ const junks = [];
 for (let i = 0; i < 12; i++) {
   junks.push({
     x: Math.random() * W,
-    y: GROUND_Y - 40 - Math.random() * 200,
+    y: GROUND_Y - 40 - Math.random() * Math.min(200, GROUND_Y * 0.25),
     w: 20 + Math.random() * 60,
     h: 40 + Math.random() * 160,
     type: Math.floor(Math.random() * 3),
@@ -371,12 +404,12 @@ function spawnParticles() {
 }
 
 function spawnBeam() {
-  const minY = 180;
-  const maxY = GROUND_Y - BEAM_GAP - 180;
+  const minY = Math.round(H * 0.17);
+  const maxY = GROUND_Y - BEAM_GAP - Math.round(H * 0.17);
   const gapY = minY + Math.random() * (maxY - minY);
   // Rust seed per beam
   const rustSeed = Math.random();
-  beams.push({ x: W + 60, gapY, passed: false, rustSeed });
+  beams.push({ x: W + 80, gapY, passed: false, rustSeed });
 }
 
 function getBeamSpeed() {
@@ -392,11 +425,11 @@ function die() {
   finalScoreEl.textContent = score;
   finalBestEl.textContent = 'BEST: ' + best;
   startBestEl.textContent = 'BEST: ' + best;
-  deathScreen.classList.remove('hidden');
+  deathScreen.style.display = 'flex';
 }
 
 function reset() {
-  deathScreen.classList.add('hidden');
+  deathScreen.style.display = 'none';
   state = 'playing';
   score = 0;
   scoreEl.textContent = '0';
@@ -421,7 +454,7 @@ function drawSky() {
   ctx.fillRect(0, 0, W, GROUND_Y);
 
   // Hazy sun disc
-  const sun = ctx.createRadialGradient(W * 0.75, 160, 10, W * 0.75, 160, 120);
+  const sun = ctx.createRadialGradient(W * 0.75, H * 0.15, 10, W * 0.75, H * 0.15, H * 0.12);
   sun.addColorStop(0, 'rgba(255,220,120,0.55)');
   sun.addColorStop(0.4, 'rgba(255,180,60,0.25)');
   sun.addColorStop(1, 'rgba(0,0,0,0)');
@@ -527,141 +560,163 @@ function drawGround() {
   }
 }
 
-// Draw an I-beam obstacle
+// Draw a structural steel I-beam obstacle
+// Viewed from front: wide flanges top & bottom, thin web connecting them.
+// Oriented vertically as two beams — one hanging from ceiling, one rising from floor.
 function drawIBeam(beam, t) {
-  const x = beam.x;
-  const topEndY = beam.gapY;       // bottom of top beam
-  const botStartY = beam.gapY + BEAM_GAP; // top of bottom beam
-
+  const cx = beam.x;
+  const topEndY   = beam.gapY;
+  const botStartY = beam.gapY + BEAM_GAP;
   const rs = beam.rustSeed;
 
-  // Helper: draw one I-beam segment filling from y1 to y2 (can be top or bottom)
-  function drawBeamSegment(y1, y2) {
-    if (y2 - y1 <= 0) return;
-    const bx = x - BEAM_W / 2;
-    const bw = BEAM_W;
+  const FW     = 150;  // flange width
+  const FH     = 20;   // flange thickness
+  const WW     = 16;   // web thickness
+  const halfFW = FW / 2;
+  const halfWW = WW / 2;
 
-    // Main web (vertical center piece)
-    const webGrad = ctx.createLinearGradient(bx, 0, bx + bw, 0);
-    webGrad.addColorStop(0,   '#3a2010');
-    webGrad.addColorStop(0.15, '#7a3818');
-    webGrad.addColorStop(0.5, '#8a4020');
-    webGrad.addColorStop(0.85,'#6a3015');
-    webGrad.addColorStop(1,   '#2a1808');
-    ctx.fillStyle = webGrad;
-    ctx.fillRect(bx, y1, bw, y2 - y1);
+  // Blue-grey steel palette with rust
+  const webDark    = '#2a3840';
+  const webMid     = '#3e5668';
+  const webLight   = '#5a7a8e';
+  const webShine   = '#80a8bc';
+  const flDark     = '#222e38';
+  const flMid      = '#384e60';
+  const flLight    = '#506e80';
+  const flShine    = '#6e94a8';
+  const rustDark   = '#6a2808';
+  const rustMid    = '#a03818';
+  const rustLight  = '#c85828';
 
-    // Rust streaks on web
+  function drawFlange(fy) {
+    const fx = cx - halfFW;
+
+    // Face gradient: dark at edges, lighter in centre — convex plate look
+    const g = ctx.createLinearGradient(fx, 0, fx + FW, 0);
+    g.addColorStop(0,    flDark);
+    g.addColorStop(0.1,  flMid);
+    g.addColorStop(0.3,  flLight);
+    g.addColorStop(0.5,  flShine);
+    g.addColorStop(0.7,  flLight);
+    g.addColorStop(0.9,  flMid);
+    g.addColorStop(1,    flDark);
+    ctx.fillStyle = g;
+    ctx.fillRect(fx, fy, FW, FH);
+
+    // Top highlight edge
+    ctx.fillStyle = 'rgba(140,200,220,0.22)';
+    ctx.fillRect(fx, fy, FW, 3);
+
+    // Bottom shadow edge
+    ctx.fillStyle = 'rgba(0,0,0,0.32)';
+    ctx.fillRect(fx, fy + FH - 3, FW, 3);
+
+    // Rust patches
     ctx.save();
-    ctx.globalAlpha = 0.35;
-    for (let ry = y1; ry < y2; ry += 18 + (rs*7|0)) {
-      const rw = 3 + (rs * 5) | 0;
-      ctx.fillStyle = '#c05020';
-      ctx.fillRect(bx + 10 + (rs*20|0), ry, rw, 10 + (rs*8|0));
-      ctx.fillRect(bx + bw - 20 - (rs*15|0), ry + 5, rw - 1, 8);
+    ctx.globalAlpha = 0.5;
+    const patches = [
+      [fx + 12 + rs*18, fy + 3,  16, 7],
+      [fx + 65 + rs*14, fy + 6,  11, 5],
+      [fx + 108+ rs*10, fy + 2,  19, 8],
+    ];
+    for (const [px, py, prx, pry] of patches) {
+      ctx.fillStyle = rustDark;
+      ctx.beginPath(); ctx.ellipse(px, py+pry, prx, pry, 0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = rustLight;
+      ctx.beginPath(); ctx.ellipse(px+4, py+3, prx*0.45, pry*0.45, 0,0,Math.PI*2); ctx.fill();
     }
     ctx.restore();
 
-    // Web highlight (light edge)
-    ctx.fillStyle = 'rgba(255,180,100,0.06)';
-    ctx.fillRect(bx + 4, y1, 6, y2 - y1);
+    // Weld fillets — the curved junction where web meets flange
+    // Drawn as dark triangular fills on both sides of web
+    ctx.fillStyle = 'rgba(8,14,18,0.6)';
+    ctx.beginPath();
+    ctx.moveTo(cx - halfWW - 10, fy);
+    ctx.lineTo(cx - halfWW,      fy + FH);
+    ctx.lineTo(cx - halfWW,      fy);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx + halfWW + 10, fy);
+    ctx.lineTo(cx + halfWW,      fy + FH);
+    ctx.lineTo(cx + halfWW,      fy);
+    ctx.closePath();
+    ctx.fill();
+    // Same on underside
+    ctx.beginPath();
+    ctx.moveTo(cx - halfWW - 10, fy + FH);
+    ctx.lineTo(cx - halfWW,      fy);
+    ctx.lineTo(cx - halfWW,      fy + FH);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx + halfWW + 10, fy + FH);
+    ctx.lineTo(cx + halfWW,      fy);
+    ctx.lineTo(cx + halfWW,      fy + FH);
+    ctx.closePath();
+    ctx.fill();
+  }
 
-    // Shadow on web right edge
-    ctx.fillStyle = 'rgba(0,0,0,0.4)';
-    ctx.fillRect(bx + bw - 6, y1, 6, y2 - y1);
+  function drawWeb(y1, y2) {
+    if (y2 - y1 < 1) return;
+    // Thin vertical plate — lit from left
+    const g = ctx.createLinearGradient(cx - halfWW, 0, cx + halfWW, 0);
+    g.addColorStop(0,   webDark);
+    g.addColorStop(0.2, webMid);
+    g.addColorStop(0.5, webLight);
+    g.addColorStop(0.8, webMid);
+    g.addColorStop(1,   webDark);
+    ctx.fillStyle = g;
+    ctx.fillRect(cx - halfWW, y1, WW, y2 - y1);
 
-    // Flange helper
-    function drawFlange(fy, isTop) {
-      const fx = x - FLANGE_W / 2;
-      const fw = FLANGE_W;
+    // Centre specular stripe
+    ctx.fillStyle = 'rgba(140,200,220,0.10)';
+    ctx.fillRect(cx - 3, y1, 6, y2 - y1);
 
-      // Flange main body
-      const flangeGrad = ctx.createLinearGradient(fx, fy, fx, fy + FLANGE_H);
-      flangeGrad.addColorStop(0, '#6a3018');
-      flangeGrad.addColorStop(0.3, '#9a4825');
-      flangeGrad.addColorStop(0.7, '#7a3818');
-      flangeGrad.addColorStop(1, '#3a1808');
-      ctx.fillStyle = flangeGrad;
-      ctx.fillRect(fx, fy, fw, FLANGE_H);
+    // Left-edge bright line
+    ctx.fillStyle = 'rgba(140,200,220,0.18)';
+    ctx.fillRect(cx - halfWW, y1, 2, y2 - y1);
 
-      // Flange top highlight
-      ctx.fillStyle = 'rgba(255,160,80,0.12)';
-      ctx.fillRect(fx, fy, fw, 4);
-
-      // Flange underside shadow
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      ctx.fillRect(fx, fy + FLANGE_H - 4, fw, 4);
-
-      // Flange rust patches
-      ctx.save();
-      ctx.globalAlpha = 0.5;
-      ctx.fillStyle = '#d04010';
-      for (let i = 0; i < 4; i++) {
-        const rpx = fx + 10 + i * (fw / 4);
-        ctx.beginPath();
-        ctx.ellipse(rpx + rs*15, fy + FLANGE_H/2, 8 + rs*6, 5 + rs*3, 0, 0, Math.PI*2);
-        ctx.fill();
-      }
-      ctx.restore();
-
-      // Bolt heads on flanges
-      ctx.fillStyle = '#4a3020';
-      const boltPositions = [fx + 16, fx + fw - 16, fx + fw/2 - 10, fx + fw/2 + 10];
-      for (const bp of boltPositions) {
-        ctx.beginPath();
-        ctx.arc(bp, fy + FLANGE_H/2, 5, 0, Math.PI*2);
-        ctx.fill();
-        ctx.strokeStyle = '#6a4030';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-        // Hex shape
-        ctx.strokeStyle = '#3a2010';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(bp, fy + FLANGE_H/2, 3, 0, Math.PI*2);
-        ctx.stroke();
-      }
+    // Rust drips running vertically
+    ctx.save();
+    ctx.globalAlpha = 0.38;
+    const d1x = cx - halfWW + 3 + (rs * 7 | 0);
+    const d2x = cx + 1       + (rs * 4 | 0);
+    const stride1 = 30 + (rs * 14 | 0);
+    const stride2 = 42 + (rs * 10 | 0);
+    for (let ry = y1 + 6; ry < y2 - 6; ry += stride1) {
+      ctx.fillStyle = rustMid;
+      ctx.fillRect(d1x, ry, 3, 14 + (rs*8|0));
     }
+    for (let ry = y1 + 18; ry < y2 - 6; ry += stride2) {
+      ctx.fillStyle = rustDark;
+      ctx.fillRect(d2x, ry, 2, 10);
+    }
+    ctx.restore();
+  }
 
-    // Draw end flange (the visible one at the gap)
-    if (/* top beam */ y2 === topEndY) {
-      drawFlange(y2 - FLANGE_H, false);
+  function drawSegment(y1, y2) {
+    if (y2 - y1 < 2) return;
+
+    drawWeb(y1, y2);
+
+    // Always draw a flange at the gap-facing end (terminal) and at the wall end (cap)
+    // Plus intermediate flanges every 160px
+    if (y2 === topEndY) {
+      // Top beam hanging from ceiling
+      drawFlange(y1);                    // cap at ceiling
+      for (let fy = y1 + FH + 160; fy < y2 - FH; fy += 160) drawFlange(fy);
+      drawFlange(y2 - FH);               // terminal at gap
     } else {
-      // bottom beam top flange
-      drawFlange(y1, true);
+      // Bottom beam rising from ground
+      drawFlange(y1);                    // terminal at gap
+      for (let fy = y1 + FH + 160; fy < y2 - FH; fy += 160) drawFlange(fy);
+      drawFlange(y2 - FH);               // cap at ground
     }
   }
 
-  // Drop shadow behind beams
-  ctx.save();
-  ctx.globalAlpha = 0.3;
-  ctx.fillStyle = '#000';
-  ctx.fillRect(x - FLANGE_W/2 + 10, 0, FLANGE_W, topEndY);
-  ctx.fillRect(x - FLANGE_W/2 + 10, botStartY, FLANGE_W, GROUND_Y - botStartY);
-  ctx.restore();
-
-  // Draw top I-beam (hanging from top)
-  drawBeamSegment(0, topEndY);
-
-  // Draw bottom I-beam (rising from ground)
-  drawBeamSegment(botStartY, GROUND_Y);
-
-  // Weld seam detail on top of each beam
-  ctx.save();
-  ctx.globalAlpha = 0.2;
-  ctx.strokeStyle = '#ff8040';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([6, 8]);
-  ctx.beginPath();
-  ctx.moveTo(x - BEAM_W/2, 0);
-  ctx.lineTo(x - BEAM_W/2, topEndY);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x - BEAM_W/2, botStartY);
-  ctx.lineTo(x - BEAM_W/2, GROUND_Y);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
+  drawSegment(0, topEndY);
+  drawSegment(botStartY, GROUND_Y);
 }
 
 // Draw the scrappy crow bird
@@ -815,10 +870,9 @@ function drawParticles() {
 
 function collides(beam) {
   const bx = bird.x, by = bird.y, br = bird.r;
-  // Check horizontal overlap with flange (wider collision)
-  const flangeLeft = beam.x - FLANGE_W / 2;
-  const flangeRight = beam.x + FLANGE_W / 2;
-  if (bx + br < flangeLeft || bx - br > flangeRight) return false;
+  // Use flange width (160) for collision — matches visual
+  const halfFW = 80;
+  if (bx + br < beam.x - halfFW || bx - br > beam.x + halfFW) return false;
   const topEndY = beam.gapY;
   const botStartY = beam.gapY + BEAM_GAP;
   if (by - br < topEndY || by + br > botStartY) return true;
@@ -903,13 +957,13 @@ function idleLoop(ts) {
   lastTime = ts;
   const t = ts / 1000;
   if (state === 'menu') {
-    bird.y = H / 2 - 40 + Math.sin(t * 1.8) * 22;
+    bird.y = H / 2 + Math.sin(t * 1.8) * 22;
     bird.angle = Math.sin(t * 1.8) * 0.1;
     groundX -= 50 * dt;
     for (const s of smokes) {
       s.x += s.drift * dt;
       s.y -= s.speed * dt * 0.3;
-      if (s.y < -s.r * 2) { s.y = GROUND_Y + s.r; s.x = Math.random() * W; }
+      if (s.y < -s.r * 2) { s.y = GROUND_Y; s.x = Math.random() * W; }
     }
   }
   draw(t);
@@ -933,7 +987,11 @@ function startIdle() {
 // ─── INPUT ───────────────────────────────────────────────────────────────────
 
 document.addEventListener('keydown', e => { if (e.code === 'Space') flap(); });
-document.addEventListener('pointerdown', e => { if (state !== 'dead') flap(); });
+
+document.addEventListener('keydown', e => { if (e.code === 'Space') flap(); });
+document.addEventListener('pointerdown', e => {
+  if (state !== 'dead') flap();
+});
 
 retryBtn.addEventListener('pointerdown', e => {
   e.stopPropagation();
