@@ -267,14 +267,17 @@ let H = window.innerHeight;
 canvas.width = W;
 canvas.height = H;
 
-// Recalculate layout constants that depend on H
-function getGroundY() { return H - Math.round(H * 0.13); }
+// Scale factor: all element sizes are relative to a 768px wide reference
+// On a 390px iPhone this gives ~0.51, on a 1024px iPad ~1.0
+const REF_W = 768;
+let S = Math.min(W, H * 0.75) / REF_W;  // use min to handle landscape too
 
 window.addEventListener('resize', () => {
   W = window.innerWidth;
   H = window.innerHeight;
   canvas.width = W;
   canvas.height = H;
+  S = Math.min(W, H * 0.75) / REF_W;
 });
 
 const overlay = document.getElementById('overlay');
@@ -291,11 +294,11 @@ let best = parseInt(localStorage.getItem('scrappyBest') || '0');
 let animFrame, lastTime = 0;
 
 // Ground is 13% of screen height, recalculated on resize
-let GROUND_H = Math.round(H * 0.13);
+let GROUND_H = Math.round(H * 0.10);
 let GROUND_Y = H - GROUND_H;
 
 window.addEventListener('resize', () => {
-  GROUND_H = Math.round(H * 0.13);
+  GROUND_H = Math.round(H * 0.10);
   GROUND_Y = H - GROUND_H;
   // Rebuild junk silhouettes for new size
   junks.length = 0;
@@ -314,7 +317,7 @@ window.addEventListener('resize', () => {
 const bird = {
   x: Math.round(W * 0.23), y: H / 2 - 40,
   vy: 0,
-  r: 26,
+  get r() { return Math.round(26 * S); },
   angle: 0,
   flapAnim: 0,
   wingUp: false,
@@ -331,7 +334,8 @@ const FLANGE_H = 28;       // flange thickness
 let BEAM_GAP = Math.round(H * 0.30);
 window.addEventListener('resize', () => { BEAM_GAP = Math.round(H * 0.30); });
 const BEAM_SPEED_BASE = 250;
-const BEAM_INTERVAL = 330;
+let BEAM_INTERVAL = Math.round(330 * S);
+window.addEventListener('resize', () => { BEAM_INTERVAL = Math.round(330 * S); });
 let beams = [];
 let beamProgress = 0;
 
@@ -381,7 +385,7 @@ function flap() {
     beamProgress = 0;
   }
   if (state === 'playing') {
-    bird.vy = FLAP_V;
+    bird.vy = FLAP_V * S;
     bird.wingUp = true;
     bird.flapAnim = 0;
     spawnParticles();
@@ -413,7 +417,7 @@ function spawnBeam() {
 }
 
 function getBeamSpeed() {
-  return BEAM_SPEED_BASE + Math.min(score * 9, 200);
+  return (BEAM_SPEED_BASE + Math.min(score * 9, 200)) * S;
 }
 
 function die() {
@@ -569,9 +573,9 @@ function drawIBeam(beam, t) {
   const botStartY = beam.gapY + BEAM_GAP;
   const rs = beam.rustSeed;
 
-  const FW     = 150;  // flange width
-  const FH     = 20;   // flange thickness
-  const WW     = 16;   // web thickness
+  const FW     = Math.round(150 * S);  // flange width
+  const FH     = Math.round(20  * S);  // flange thickness
+  const WW     = Math.round(16  * S);  // web thickness
   const halfFW = FW / 2;
   const halfWW = WW / 2;
 
@@ -724,8 +728,10 @@ function drawBird(t) {
   const bx = bird.x, by = bird.y;
   const ang = Math.max(-0.45, Math.min(Math.PI * 0.5, bird.angle));
 
+  const bs = S; // bird scale
   ctx.save();
   ctx.translate(bx, by);
+  ctx.scale(bs, bs);
   ctx.rotate(ang);
 
   // Drop shadow
@@ -871,7 +877,7 @@ function drawParticles() {
 function collides(beam) {
   const bx = bird.x, by = bird.y, br = bird.r;
   // Use flange width (160) for collision — matches visual
-  const halfFW = 80;
+  const halfFW = Math.round(75 * S);
   if (bx + br < beam.x - halfFW || bx - br > beam.x + halfFW) return false;
   const topEndY = beam.gapY;
   const botStartY = beam.gapY + BEAM_GAP;
@@ -884,7 +890,7 @@ function collides(beam) {
 function update(dt, t) {
   if (state !== 'playing') return;
 
-  bird.vy += GRAVITY * dt;
+  bird.vy += GRAVITY * S * dt;
   bird.y += bird.vy * dt;
   bird.angle = bird.vy * 0.0012;
   bird.flapAnim = Math.min(1, bird.flapAnim + dt * 6);
@@ -921,14 +927,14 @@ function update(dt, t) {
 
   for (const beam of beams) {
     beam.x -= speed * dt;
-    if (!beam.passed && beam.x + FLANGE_W / 2 < bird.x) {
+    if (!beam.passed && beam.x + Math.round(FLANGE_W * S / 2) < bird.x) {
       beam.passed = true;
       score++;
       scoreEl.textContent = score;
     }
     if (collides(beam)) { die(); return; }
   }
-  beams = beams.filter(b => b.x > -FLANGE_W - 20);
+  beams = beams.filter(b => b.x > -(FLANGE_W * S) - 20);
 }
 
 function draw(t) {
