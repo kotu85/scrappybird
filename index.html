@@ -62,7 +62,7 @@ top: 36px; left: 50%;
 transform: translateX(-50%);
 font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
 font-size: clamp(30px, 5.5vw, 52px);
-color: var(–accent);
+color: #ff6a00;
 text-shadow: 3px 3px 0 #000, 0 0 24px var(–glow);
 letter-spacing: 6px;
 z-index: 10;
@@ -84,14 +84,23 @@ transition: opacity 0.4s;
 #overlay.hidden { opacity: 0; pointer-events: none; }
 
 .game-title {
-font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
+font-family: ‘Bungee Shade’, ‘Bungee’, impact, ‘Arial Black’, sans-serif;
 font-size: clamp(36px, 7.5vw, 72px);
-color: var(–rust-light);
-text-shadow: 5px 5px 0 #3a1005, 0 0 50px var(–glow);
+color: #ff6a00 !important;
+text-shadow: 4px 4px 0 #1a0800, 0 0 40px rgba(255,106,0,0.9), 0 0 80px rgba(255,80,0,0.5) !important;
 text-align: center;
 line-height: 1.2;
 animation: titleBob 2s ease-in-out infinite;
 letter-spacing: 4px;
+font-weight: 900;
+-webkit-font-smoothing: antialiased;
+}
+
+.game-title-wrap {
+background: rgba(0,0,0,0.4);
+border-radius: 8px;
+padding: 10px 24px;
+border: 1px solid rgba(255,106,0,0.2);
 }
 
 .emoji-bird {
@@ -117,7 +126,7 @@ text-transform: uppercase;
 .tap-prompt {
 font-family: ‘Bungee’, impact, sans-serif;
 font-size: clamp(13px, 2.4vw, 20px);
-color: var(–accent);
+color: #ff6a00;
 animation: blink 0.9s step-end infinite;
 margin-top: 8px;
 letter-spacing: 3px;
@@ -201,7 +210,7 @@ letter-spacing: 4px;
 .score-val {
 font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
 font-size: clamp(22px, 4.5vw, 40px);
-color: var(–accent);
+color: #ff6a00;
 text-shadow: 2px 2px 0 #000;
 }
 
@@ -441,10 +450,10 @@ box-shadow: 0 4px 0 #0a0804;
 
   <div id="overlay">
     <div class="emoji-bird">🐦‍⬛</div>
-    <div class="game-title">SCRAPPY<br>BIRD</div>
-    <div class="subtitle">⚙ Junkyard Edition ⚙</div>
-    <div class="best-score" id="startBest">BEST: 0</div>
-    <div class="tap-prompt">[ TAP TO FLY ]</div>
+    <div class="game-title-wrap"><div class="game-title" style="color:#ff6a00;text-shadow:4px 4px 0 #1a0800,0 0 40px rgba(255,106,0,0.9),0 0 80px rgba(255,80,0,0.5);">SCRAPPY<br>BIRD</div></div>
+    <div class="subtitle" style="color:#8a7060;letter-spacing:5px;">⚙ Junkyard Edition ⚙</div>
+    <div class="best-score" id="startBest" style="color:#d07040;">BEST: 0</div>
+    <div class="tap-prompt" style="color:#ff6a00;text-shadow:2px 2px 0 #000;">[ TAP TO FLY ]</div>
     <button class="lb-btn secondary" id="startLbBtn" style="pointer-events:all;margin-top:4px;">🏆 LEADERBOARD</button>
   </div>
 
