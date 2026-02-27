@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -23,425 +22,424 @@
     --grunge: #1a1710;
   }
 
-- { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body {
-width: 100%; height: 100%;
-background: #0a0a08;
-margin: 0; padding: 0;
-font-family: ‘Bungee’, impact, sans-serif;
-overflow: hidden;
-touch-action: none;
-padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
+  html, body {
+    width: 100%; height: 100%;
+    background: #0a0a08;
+    margin: 0; padding: 0;
+    font-family: 'Bungee', impact, sans-serif;
+    overflow: hidden;
+    touch-action: none;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
 
-#gameWrapper {
-position: fixed;
-top: 0; left: 0;
-width: 100%;
-height: 100%;
-overflow: hidden;
-}
+  #gameWrapper {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
 
-canvas {
-display: block;
-width: 100%;
-height: 100%;
-}
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 
-#ui {
-position: absolute;
-top: 0; left: 0;
-width: 100%; height: 100%;
-pointer-events: none;
-}
+  #ui {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
 
-#score {
-position: absolute;
-top: 36px; left: 50%;
-transform: translateX(-50%);
-font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
-font-size: clamp(30px, 5.5vw, 52px);
-color: #ff6a00;
-text-shadow: 3px 3px 0 #000, 0 0 24px var(–glow);
-letter-spacing: 6px;
-z-index: 10;
-}
+  #score {
+    position: absolute;
+    top: 36px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Bungee Shade', 'Bungee', impact, sans-serif;
+    font-size: clamp(30px, 5.5vw, 52px);
+    color: #ff6a00;
+    text-shadow: 3px 3px 0 #000, 0 0 24px var(--glow);
+    letter-spacing: 6px;
+    z-index: 10;
+  }
 
-#overlay {
-position: absolute;
-top: 0; left: 0; width: 100%; height: 100%;
-display: flex; flex-direction: column;
-align-items: center; justify-content: center;
-gap: 18px;
-background: rgba(10,10,6,0.82);
-backdrop-filter: blur(5px);
-z-index: 20;
-pointer-events: all;
-transition: opacity 0.4s;
-}
+  #overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px;
+    background: rgba(10,10,6,0.82);
+    backdrop-filter: blur(5px);
+    z-index: 20;
+    pointer-events: all;
+    transition: opacity 0.4s;
+  }
 
-#overlay.hidden { opacity: 0; pointer-events: none; }
+  #overlay.hidden { opacity: 0; pointer-events: none; }
 
-.game-title {
-font-family: ‘Bungee Shade’, ‘Bungee’, impact, ‘Arial Black’, sans-serif;
-font-size: clamp(36px, 7.5vw, 72px);
-color: #ff6a00 !important;
-text-shadow: 4px 4px 0 #1a0800, 0 0 40px rgba(255,106,0,0.9), 0 0 80px rgba(255,80,0,0.5) !important;
-text-align: center;
-line-height: 1.2;
-animation: titleBob 2s ease-in-out infinite;
-letter-spacing: 4px;
-font-weight: 900;
--webkit-font-smoothing: antialiased;
-}
+  .game-title {
+    font-family: 'Bungee Shade', 'Bungee', impact, 'Arial Black', sans-serif;
+    font-size: clamp(36px, 7.5vw, 72px);
+    color: #ff6a00 !important;
+    text-shadow: 4px 4px 0 #1a0800, 0 0 40px rgba(255,106,0,0.9), 0 0 80px rgba(255,80,0,0.5) !important;
+    text-align: center;
+    line-height: 1.2;
+    animation: titleBob 2s ease-in-out infinite;
+    letter-spacing: 4px;
+    font-weight: 900;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  .game-title-wrap {
+    background: rgba(0,0,0,0.4);
+    border-radius: 8px;
+    padding: 10px 24px;
+    border: 1px solid rgba(255,106,0,0.2);
+  }
 
-.game-title-wrap {
-background: rgba(0,0,0,0.4);
-border-radius: 8px;
-padding: 10px 24px;
-border: 1px solid rgba(255,106,0,0.2);
-}
+  .emoji-bird {
+    font-size: clamp(50px, 9vw, 90px);
+    animation: titleBob 2s ease-in-out infinite reverse;
+    filter: drop-shadow(0 0 12px rgba(255,106,0,0.6));
+  }
 
-.emoji-bird {
-font-size: clamp(50px, 9vw, 90px);
-animation: titleBob 2s ease-in-out infinite reverse;
-filter: drop-shadow(0 0 12px rgba(255,106,0,0.6));
-}
+  @keyframes titleBob {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-14px) rotate(2deg); }
+  }
 
-@keyframes titleBob {
-0%,100% { transform: translateY(0) rotate(-2deg); }
-50% { transform: translateY(-14px) rotate(2deg); }
-}
+  .subtitle {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: clamp(10px, 1.8vw, 15px);
+    color: #8a8070;
+    text-align: center;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
 
-.subtitle {
-font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
-font-size: clamp(10px, 1.8vw, 15px);
-color: #8a8070;
-text-align: center;
-letter-spacing: 3px;
-text-transform: uppercase;
-}
+  .tap-prompt {
+    font-family: 'Bungee', impact, sans-serif;
+    font-size: clamp(13px, 2.4vw, 20px);
+    color: #ff6a00;
+    animation: blink 0.9s step-end infinite;
+    margin-top: 8px;
+    letter-spacing: 3px;
+  }
 
-.tap-prompt {
-font-family: ‘Bungee’, impact, sans-serif;
-font-size: clamp(13px, 2.4vw, 20px);
-color: #ff6a00;
-animation: blink 0.9s step-end infinite;
-margin-top: 8px;
-letter-spacing: 3px;
-}
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .best-score {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: clamp(10px, 1.8vw, 14px);
+    color: #c08060;
+    text-shadow: 1px 1px 0 #000;
+    letter-spacing: 2px;
+  }
 
-.best-score {
-font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
-font-size: clamp(10px, 1.8vw, 14px);
-color: #c08060;
-text-shadow: 1px 1px 0 #000;
-letter-spacing: 2px;
-}
+  #deathScreen {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px;
+    background: rgba(10,6,4,0.88);
+    backdrop-filter: blur(7px);
+    z-index: 25;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
 
-#deathScreen {
-position: absolute;
-top: 0; left: 0; width: 100%; height: 100%;
-display: flex; flex-direction: column;
-align-items: center; justify-content: center;
-gap: 18px;
-background: rgba(10,6,4,0.88);
-backdrop-filter: blur(7px);
-z-index: 25;
-pointer-events: none;
-transition: opacity 0.3s;
-}
+  #deathScreen.hidden { opacity: 0; pointer-events: none; }
 
-#deathScreen.hidden { opacity: 0; pointer-events: none; }
+  .death-title {
+    font-family: 'Bungee Shade', 'Bungee', impact, sans-serif;
+    font-size: clamp(24px, 5.5vw, 50px);
+    color: #cc3300;
+    text-shadow: 4px 4px 0 #500000, 0 0 40px rgba(200,50,0,0.9);
+    animation: shake 0.5s ease-out;
+    letter-spacing: 4px;
+  }
 
-.death-title {
-font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
-font-size: clamp(24px, 5.5vw, 50px);
-color: #cc3300;
-text-shadow: 4px 4px 0 #500000, 0 0 40px rgba(200,50,0,0.9);
-animation: shake 0.5s ease-out;
-letter-spacing: 4px;
-}
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-14px)}
+    40%{transform:translateX(14px)}
+    60%{transform:translateX(-8px)}
+    80%{transform:translateX(8px)}
+  }
 
-@keyframes shake {
-0%,100%{transform:translateX(0)}
-20%{transform:translateX(-14px)}
-40%{transform:translateX(14px)}
-60%{transform:translateX(-8px)}
-80%{transform:translateX(8px)}
-}
+  .score-board {
+    background: rgba(20,14,8,0.85);
+    border: 3px solid var(--rust);
+    border-radius: 6px;
+    padding: 22px 44px;
+    text-align: center;
+    box-shadow: 0 0 24px rgba(181,69,27,0.5), inset 0 0 20px rgba(0,0,0,0.5);
+    position: relative;
+  }
 
-.score-board {
-background: rgba(20,14,8,0.85);
-border: 3px solid var(–rust);
-border-radius: 6px;
-padding: 22px 44px;
-text-align: center;
-box-shadow: 0 0 24px rgba(181,69,27,0.5), inset 0 0 20px rgba(0,0,0,0.5);
-position: relative;
-}
+  .score-board::before {
+    content: '';
+    position: absolute;
+    top: -3px; left: -3px; right: -3px; bottom: -3px;
+    border-radius: 6px;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(181,69,27,0.08) 4px,
+      rgba(181,69,27,0.08) 8px
+    );
+    pointer-events: none;
+  }
 
-.score-board::before {
-content: ‘’;
-position: absolute;
-top: -3px; left: -3px; right: -3px; bottom: -3px;
-border-radius: 6px;
-background: repeating-linear-gradient(
-45deg,
-transparent,
-transparent 4px,
-rgba(181,69,27,0.08) 4px,
-rgba(181,69,27,0.08) 8px
-);
-pointer-events: none;
-}
+  .score-label {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: clamp(9px, 1.6vw, 12px);
+    color: #7a6050;
+    margin-bottom: 6px;
+    letter-spacing: 4px;
+  }
 
-.score-label {
-font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
-font-size: clamp(9px, 1.6vw, 12px);
-color: #7a6050;
-margin-bottom: 6px;
-letter-spacing: 4px;
-}
+  .score-val {
+    font-family: 'Bungee Shade', 'Bungee', impact, sans-serif;
+    font-size: clamp(22px, 4.5vw, 40px);
+    color: #ff6a00;
+    text-shadow: 2px 2px 0 #000;
+  }
 
-.score-val {
-font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
-font-size: clamp(22px, 4.5vw, 40px);
-color: #ff6a00;
-text-shadow: 2px 2px 0 #000;
-}
+  .score-best {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: clamp(9px, 1.6vw, 12px);
+    color: #c08060;
+    margin-top: 10px;
+    letter-spacing: 2px;
+  }
 
-.score-best {
-font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
-font-size: clamp(9px, 1.6vw, 12px);
-color: #c08060;
-margin-top: 10px;
-letter-spacing: 2px;
-}
+  .play-btn {
+    font-family: 'Bungee', impact, sans-serif;
+    font-size: clamp(13px, 2.4vw, 20px);
+    background: linear-gradient(180deg, #c04010 0%, #802808 100%);
+    color: #ffe8d0;
+    border: 3px solid #e05020;
+    border-radius: 4px;
+    padding: 14px 36px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #401404, 0 0 20px var(--glow);
+    transition: transform 0.1s, box-shadow 0.1s;
+    pointer-events: all;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
 
-.play-btn {
-font-family: ‘Bungee’, impact, sans-serif;
-font-size: clamp(13px, 2.4vw, 20px);
-background: linear-gradient(180deg, #c04010 0%, #802808 100%);
-color: #ffe8d0;
-border: 3px solid #e05020;
-border-radius: 4px;
-padding: 14px 36px;
-cursor: pointer;
-box-shadow: 0 6px 0 #401404, 0 0 20px var(–glow);
-transition: transform 0.1s, box-shadow 0.1s;
-pointer-events: all;
-letter-spacing: 3px;
-text-transform: uppercase;
-}
+  .play-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #401404;
+  }
 
-.play-btn:active {
-transform: translateY(4px);
-box-shadow: 0 2px 0 #401404;
-}
+  /* ── Name Entry Screen ───────────────────────────────── */
+  #nameScreen {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 18px;
+    background: rgba(8,5,2,0.92);
+    backdrop-filter: blur(8px);
+    z-index: 30;
+    pointer-events: all;
+  }
 
-/* ── Name Entry Screen ───────────────────────────────── */
-#nameScreen {
-position: absolute;
-top: 0; left: 0; width: 100%; height: 100%;
-display: none;
-flex-direction: column;
-align-items: center; justify-content: center;
-gap: 18px;
-background: rgba(8,5,2,0.92);
-backdrop-filter: blur(8px);
-z-index: 30;
-pointer-events: all;
-}
+  .name-title {
+    font-family: 'Bungee Shade', 'Bungee', impact, sans-serif;
+    font-size: clamp(18px, 4vw, 36px);
+    color: #ff6a00;
+    text-shadow: 3px 3px 0 #401404, 0 0 30px rgba(255,106,0,0.7);
+    letter-spacing: 3px;
+    text-align: center;
+  }
 
-.name-title {
-font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
-font-size: clamp(18px, 4vw, 36px);
-color: #ff6a00;
-text-shadow: 3px 3px 0 #401404, 0 0 30px rgba(255,106,0,0.7);
-letter-spacing: 3px;
-text-align: center;
-}
+  .name-score-display {
+    font-family: 'Bungee', impact, sans-serif;
+    font-size: clamp(28px, 6vw, 56px);
+    color: #ffe8d0;
+    text-shadow: 2px 2px 0 #000;
+  }
 
-.name-score-display {
-font-family: ‘Bungee’, impact, sans-serif;
-font-size: clamp(28px, 6vw, 56px);
-color: #ffe8d0;
-text-shadow: 2px 2px 0 #000;
-}
+  .name-label {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: clamp(9px, 1.6vw, 12px);
+    color: #7a6050;
+    letter-spacing: 4px;
+  }
 
-.name-label {
-font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
-font-size: clamp(9px, 1.6vw, 12px);
-color: #7a6050;
-letter-spacing: 4px;
-}
+  #nameInput {
+    font-family: 'Bungee', impact, sans-serif;
+    font-size: clamp(18px, 3.5vw, 28px);
+    background: rgba(20,12,6,0.9);
+    color: #ff9a50;
+    border: 2px solid #c04010;
+    border-radius: 4px;
+    padding: 12px 20px;
+    text-align: center;
+    outline: none;
+    width: min(280px, 70vw);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    box-shadow: 0 0 16px rgba(255,106,0,0.3), inset 0 0 10px rgba(0,0,0,0.5);
+    caret-color: #ff6a00;
+  }
 
-#nameInput {
-font-family: ‘Bungee’, impact, sans-serif;
-font-size: clamp(18px, 3.5vw, 28px);
-background: rgba(20,12,6,0.9);
-color: #ff9a50;
-border: 2px solid #c04010;
-border-radius: 4px;
-padding: 12px 20px;
-text-align: center;
-outline: none;
-width: min(280px, 70vw);
-letter-spacing: 4px;
-text-transform: uppercase;
-box-shadow: 0 0 16px rgba(255,106,0,0.3), inset 0 0 10px rgba(0,0,0,0.5);
-caret-color: #ff6a00;
-}
+  #nameInput::placeholder {
+    color: #4a3020;
+    letter-spacing: 2px;
+  }
 
-#nameInput::placeholder {
-color: #4a3020;
-letter-spacing: 2px;
-}
+  #nameInput:focus {
+    border-color: #ff6a00;
+    box-shadow: 0 0 24px rgba(255,106,0,0.5), inset 0 0 10px rgba(0,0,0,0.5);
+  }
 
-#nameInput:focus {
-border-color: #ff6a00;
-box-shadow: 0 0 24px rgba(255,106,0,0.5), inset 0 0 10px rgba(0,0,0,0.5);
-}
+  .name-hint {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: clamp(8px, 1.4vw, 11px);
+    color: #4a3828;
+    letter-spacing: 2px;
+  }
 
-.name-hint {
-font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
-font-size: clamp(8px, 1.4vw, 11px);
-color: #4a3828;
-letter-spacing: 2px;
-}
+  /* ── Leaderboard Screen ──────────────────────────────── */
+  #leaderboard {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 14px;
+    background: rgba(8,5,2,0.93);
+    backdrop-filter: blur(8px);
+    z-index: 28;
+    pointer-events: all;
+    padding: 20px;
+  }
 
-/* ── Leaderboard Screen ──────────────────────────────── */
-#leaderboard {
-position: absolute;
-top: 0; left: 0; width: 100%; height: 100%;
-display: none;
-flex-direction: column;
-align-items: center; justify-content: center;
-gap: 14px;
-background: rgba(8,5,2,0.93);
-backdrop-filter: blur(8px);
-z-index: 28;
-pointer-events: all;
-padding: 20px;
-}
+  .lb-title {
+    font-family: 'Bungee Shade', 'Bungee', impact, sans-serif;
+    font-size: clamp(20px, 4.5vw, 42px);
+    color: #ff6a00;
+    text-shadow: 3px 3px 0 #401404, 0 0 30px rgba(255,106,0,0.7);
+    letter-spacing: 4px;
+    margin-bottom: 4px;
+  }
 
-.lb-title {
-font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
-font-size: clamp(20px, 4.5vw, 42px);
-color: #ff6a00;
-text-shadow: 3px 3px 0 #401404, 0 0 30px rgba(255,106,0,0.7);
-letter-spacing: 4px;
-margin-bottom: 4px;
-}
+  .lb-table {
+    width: min(420px, 88vw);
+    border-collapse: collapse;
+  }
 
-.lb-table {
-width: min(420px, 88vw);
-border-collapse: collapse;
-}
+  .lb-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(180,70,20,0.2);
+    gap: 12px;
+    position: relative;
+    transition: background 0.2s;
+  }
 
-.lb-row {
-display: flex;
-align-items: center;
-padding: 8px 12px;
-border-bottom: 1px solid rgba(180,70,20,0.2);
-gap: 12px;
-position: relative;
-transition: background 0.2s;
-}
+  .lb-row.lb-new {
+    background: rgba(255,106,0,0.12);
+    border: 1px solid rgba(255,106,0,0.4);
+    border-radius: 4px;
+    animation: newEntry 0.6s ease-out;
+  }
 
-.lb-row.lb-new {
-background: rgba(255,106,0,0.12);
-border: 1px solid rgba(255,106,0,0.4);
-border-radius: 4px;
-animation: newEntry 0.6s ease-out;
-}
+  @keyframes newEntry {
+    0% { transform: scaleX(0.8); opacity: 0; }
+    100% { transform: scaleX(1); opacity: 1; }
+  }
 
-@keyframes newEntry {
-0% { transform: scaleX(0.8); opacity: 0; }
-100% { transform: scaleX(1); opacity: 1; }
-}
+  .lb-rank {
+    font-family: 'Bungee', impact, sans-serif;
+    font-size: clamp(10px, 2vw, 16px);
+    color: #5a4030;
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+  }
 
-.lb-rank {
-font-family: ‘Bungee’, impact, sans-serif;
-font-size: clamp(10px, 2vw, 16px);
-color: #5a4030;
-width: 28px;
-text-align: center;
-flex-shrink: 0;
-}
+  .lb-rank.gold   { color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.6); }
+  .lb-rank.silver { color: #c0c0c0; }
+  .lb-rank.bronze { color: #cd7f32; }
 
-.lb-rank.gold   { color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.6); }
-.lb-rank.silver { color: #c0c0c0; }
-.lb-rank.bronze { color: #cd7f32; }
+  .lb-name {
+    font-family: 'Bungee', impact, sans-serif;
+    font-size: clamp(11px, 2.2vw, 18px);
+    color: #d09070;
+    flex: 1;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-.lb-name {
-font-family: ‘Bungee’, impact, sans-serif;
-font-size: clamp(11px, 2.2vw, 18px);
-color: #d09070;
-flex: 1;
-letter-spacing: 2px;
-text-transform: uppercase;
-overflow: hidden;
-text-overflow: ellipsis;
-white-space: nowrap;
-}
+  .lb-score {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: clamp(12px, 2.4vw, 20px);
+    color: #ff9a50;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
 
-.lb-score {
-font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
-font-size: clamp(12px, 2.4vw, 20px);
-color: #ff9a50;
-font-weight: bold;
-flex-shrink: 0;
-}
+  .lb-divider {
+    width: min(420px, 88vw);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c04010, transparent);
+    margin: 2px 0;
+  }
 
-.lb-divider {
-width: min(420px, 88vw);
-height: 1px;
-background: linear-gradient(90deg, transparent, #c04010, transparent);
-margin: 2px 0;
-}
+  .lb-empty {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: clamp(9px, 1.6vw, 13px);
+    color: #3a2818;
+    letter-spacing: 3px;
+    padding: 20px;
+    text-align: center;
+  }
 
-.lb-empty {
-font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
-font-size: clamp(9px, 1.6vw, 13px);
-color: #3a2818;
-letter-spacing: 3px;
-padding: 20px;
-text-align: center;
-}
+  .lb-btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+  }
 
-.lb-btn-row {
-display: flex;
-gap: 12px;
-margin-top: 6px;
-}
+  .lb-btn {
+    font-family: 'Bungee', impact, sans-serif;
+    font-size: clamp(10px, 2vw, 15px);
+    background: linear-gradient(180deg, #c04010 0%, #802808 100%);
+    color: #ffe8d0;
+    border: 2px solid #e05020;
+    border-radius: 4px;
+    padding: 10px 22px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #401404;
+    letter-spacing: 2px;
+    pointer-events: all;
+  }
 
-.lb-btn {
-font-family: ‘Bungee’, impact, sans-serif;
-font-size: clamp(10px, 2vw, 15px);
-background: linear-gradient(180deg, #c04010 0%, #802808 100%);
-color: #ffe8d0;
-border: 2px solid #e05020;
-border-radius: 4px;
-padding: 10px 22px;
-cursor: pointer;
-box-shadow: 0 4px 0 #401404;
-letter-spacing: 2px;
-pointer-events: all;
-}
-
-.lb-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #401404; }
-.lb-btn.secondary {
-background: linear-gradient(180deg, #2a2018 0%, #181008 100%);
-border-color: #6a4020;
-box-shadow: 0 4px 0 #0a0804;
-}
+  .lb-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #401404; }
+  .lb-btn.secondary {
+    background: linear-gradient(180deg, #2a2018 0%, #181008 100%);
+    border-color: #6a4020;
+    box-shadow: 0 4px 0 #0a0804;
+  }
 </style>
-
 </head>
 <body>
 <div id="gameWrapper">
@@ -458,7 +456,6 @@ box-shadow: 0 4px 0 #0a0804;
   </div>
 
   <!-- Death / Score Screen -->
-
   <div id="deathScreen" style="display:none">
     <div class="death-title">SCRAPPED!</div>
     <div class="score-board">
@@ -473,7 +470,6 @@ box-shadow: 0 4px 0 #0a0804;
   </div>
 
   <!-- Name Entry Screen -->
-
   <div id="nameScreen" style="display:none">
     <div class="name-title">NEW HIGH SCORE!</div>
     <div class="name-score-display" id="nameScoreDisplay">0</div>
@@ -487,7 +483,6 @@ box-shadow: 0 4px 0 #0a0804;
   </div>
 
   <!-- Leaderboard Screen -->
-
   <div id="leaderboard">
     <div class="lb-title">⚙ TOP SCRAPPERS ⚙</div>
     <div class="lb-divider"></div>
@@ -673,35 +668,58 @@ function getBeamSpeed() {
   return (BEAM_SPEED_BASE + Math.min(score * 9, 200)) * S;
 }
 
-// ── Leaderboard (shared storage) ────────────────────────────────────────
-const LB_KEY = 'scrappy-leaderboard';
+// ── Leaderboard — Supabase global backend ───────────────────────────────
+const SB_URL = 'https://yhmmsduzuskeajlzgdfu.supabase.co';
+const SB_KEY = 'sb_publishable_gjuNq1QeLkdt_n9zc-nqhA_9z1u8Lm1';
 const LB_MAX = 10;
 let pendingScore = 0;
 let newEntryIndex = -1;
+let cachedEntries = []; // local cache so we can check isHighScore instantly
 
-function loadLeaderboard() {
-  try { return JSON.parse(localStorage.getItem(LB_KEY) || "[]"); }
-  catch(e) { return []; }
+function sbHeaders() {
+  return {
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + SB_KEY,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
 }
 
-function saveLeaderboard(entries) {
-  try { localStorage.setItem(LB_KEY, JSON.stringify(entries)); }
-  catch(e) {}
+async function loadLeaderboard() {
+  try {
+    const res = await fetch(
+      SB_URL + '/rest/v1/scores?select=name,score&order=score.desc&limit=' + LB_MAX,
+      { headers: sbHeaders() }
+    );
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    cachedEntries = data;
+    return data;
+  } catch(e) {
+    console.warn('Leaderboard load failed, using cache:', e);
+    return cachedEntries;
+  }
 }
 
-function submitScore(name) {
-  const entries = loadLeaderboard();
-  const clean = (name || 'ANON').trim().toUpperCase().slice(0,12) || 'ANON';
-  entries.push({ name: clean, score: pendingScore, date: Date.now() });
-  entries.sort((a,b) => b.score - a.score);
-  const trimmed = entries.slice(0, LB_MAX);
-  newEntryIndex = trimmed.findIndex(e => e.score === pendingScore && e.name === clean);
-  saveLeaderboard(trimmed);
-  return trimmed;
+async function submitScore(name) {
+  const clean = (name || 'ANON').trim().toUpperCase().slice(0, 12) || 'ANON';
+  try {
+    await fetch(SB_URL + '/rest/v1/scores', {
+      method: 'POST',
+      headers: sbHeaders(),
+      body: JSON.stringify({ name: clean, score: pendingScore })
+    });
+  } catch(e) {
+    console.warn('Score submit failed:', e);
+  }
+  const entries = await loadLeaderboard();
+  newEntryIndex = entries.findIndex(e => e.name === clean && e.score === pendingScore);
+  return entries;
 }
 
-function renderLeaderboard(highlightIdx) {
-  const entries = loadLeaderboard();
+async function renderLeaderboard(highlightIdx) {
+  lbList.innerHTML = '<div class="lb-empty" style="color:#6a5040;letter-spacing:3px;">LOADING...</div>';
+  const entries = await loadLeaderboard();
   lbList.innerHTML = '';
   if (entries.length === 0) {
     lbList.innerHTML = '<div class="lb-empty">NO SCORES YET — BE THE FIRST!</div>';
@@ -720,24 +738,26 @@ function renderLeaderboard(highlightIdx) {
   });
 }
 
-function showLeaderboard(highlight) {
+async function showLeaderboard(highlight) {
   deathScreen.style.display = 'none';
   nameScreen.style.display = 'none';
-  renderLeaderboard(highlight !== undefined ? highlight : -1);
   leaderboard.style.display = 'flex';
+  await renderLeaderboard(highlight !== undefined ? highlight : -1);
 }
 
 function hideLeaderboard() {
   leaderboard.style.display = 'none';
 }
 
-// Check if score qualifies for leaderboard
+// Check if score qualifies — use cached entries for instant response
 function isHighScore(s) {
   if (s === 0) return false;
-  const entries = loadLeaderboard();
-  if (entries.length < LB_MAX) return true;
-  return s > entries[entries.length - 1].score;
+  if (cachedEntries.length < LB_MAX) return true;
+  return s > cachedEntries[cachedEntries.length - 1].score;
 }
+
+// Pre-load leaderboard on startup so isHighScore works immediately
+loadLeaderboard();
 
 function die() {
   state = 'dead';
@@ -750,8 +770,8 @@ function die() {
   finalBestEl.textContent = 'BEST: ' + best;
   startBestEl.textContent = 'BEST: ' + best;
 
-  // Check if score qualifies — show name entry or just death screen
-  if (isHighScore(score)) {
+  // Always offer name entry if they scored anything
+  if (score > 0) {
     nameScoreDisp.textContent = score;
     nameInput.value = '';
     deathScreen.style.display = 'none';
@@ -1315,11 +1335,14 @@ leaderboardBtn.addEventListener('pointerdown', e => {
 });
 
 // Name submit
-function doNameSubmit() {
+async function doNameSubmit() {
   const name = nameInput.value.trim() || 'ANON';
-  const entries = submitScore(name);
   nameScreen.style.display = 'none';
-  showLeaderboard(newEntryIndex);
+  // Show leaderboard immediately with loading state
+  leaderboard.style.display = 'flex';
+  lbList.innerHTML = '<div class="lb-empty" style="color:#6a5040;letter-spacing:3px;">SAVING...</div>';
+  await submitScore(name);
+  await renderLeaderboard(newEntryIndex);
 }
 
 nameSubmitBtn.addEventListener('pointerdown', e => {
@@ -1361,15 +1384,11 @@ document.getElementById('startLbBtn').addEventListener('pointerdown', e => {
 // Clear leaderboard
 lbClearBtn.addEventListener('pointerdown', e => {
   e.stopPropagation();
-  if (confirm('Clear all scores?')) {
-    localStorage.setItem("scrappy-leaderboard", "[]");
-    renderLeaderboard(-1);
-  }
+  alert('Scores are saved globally — only the server admin can clear them.');
 });
 
 startBestEl.textContent = 'BEST: ' + best;
 startIdle();
 </script>
-
 </body>
 </html>
