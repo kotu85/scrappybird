@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -7,231 +8,430 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Bungee&family=Share+Tech+Mono&display=swap');
 
-  :root {
-    --rust: #b5451b;
-    --rust-dark: #7a2a08;
-    --rust-light: #e06030;
-    --steel: #5a6068;
-    --steel-light: #8a9098;
-    --grime: #2a2318;
-    --smoke: #3a3830;
-    --accent: #ff6a00;
-    --glow: rgba(255,106,0,0.7);
-    --score-color: #ffcc88;
-    --grunge: #1a1710;
-  }
+:root {
+–rust: #b5451b;
+–rust-dark: #7a2a08;
+–rust-light: #e06030;
+–steel: #5a6068;
+–steel-light: #8a9098;
+–grime: #2a2318;
+–smoke: #3a3830;
+–accent: #ff6a00;
+–glow: rgba(255,106,0,0.7);
+–score-color: #ffcc88;
+–grunge: #1a1710;
+}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+- { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html, body {
-    width: 100%; height: 100%;
-    background: #0a0a08;
-    margin: 0; padding: 0;
-    font-family: 'Bungee', monospace;
-    overflow: hidden;
-    touch-action: none;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  }
+html, body {
+width: 100%; height: 100%;
+background: #0a0a08;
+margin: 0; padding: 0;
+font-family: ‘Bungee’, monospace;
+overflow: hidden;
+touch-action: none;
+padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
 
-  #gameWrapper {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
+#gameWrapper {
+position: fixed;
+top: 0; left: 0;
+width: 100%;
+height: 100%;
+overflow: hidden;
+}
 
-  canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
+canvas {
+display: block;
+width: 100%;
+height: 100%;
+}
 
-  #ui {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-  }
+#ui {
+position: absolute;
+top: 0; left: 0;
+width: 100%; height: 100%;
+pointer-events: none;
+}
 
-  #score {
-    position: absolute;
-    top: 36px; left: 50%;
-    transform: translateX(-50%);
-    font-family: 'Bungee Shade', cursive;
-    font-size: clamp(30px, 5.5vw, 52px);
-    color: var(--accent);
-    text-shadow: 3px 3px 0 #000, 0 0 24px var(--glow);
-    letter-spacing: 6px;
-    z-index: 10;
-  }
+#score {
+position: absolute;
+top: 36px; left: 50%;
+transform: translateX(-50%);
+font-family: ‘Bungee Shade’, cursive;
+font-size: clamp(30px, 5.5vw, 52px);
+color: var(–accent);
+text-shadow: 3px 3px 0 #000, 0 0 24px var(–glow);
+letter-spacing: 6px;
+z-index: 10;
+}
 
-  #overlay {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 18px;
-    background: rgba(10,10,6,0.82);
-    backdrop-filter: blur(5px);
-    z-index: 20;
-    pointer-events: all;
-    transition: opacity 0.4s;
-  }
+#overlay {
+position: absolute;
+top: 0; left: 0; width: 100%; height: 100%;
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+gap: 18px;
+background: rgba(10,10,6,0.82);
+backdrop-filter: blur(5px);
+z-index: 20;
+pointer-events: all;
+transition: opacity 0.4s;
+}
 
-  #overlay.hidden { opacity: 0; pointer-events: none; }
+#overlay.hidden { opacity: 0; pointer-events: none; }
 
-  .game-title {
-    font-family: 'Bungee Shade', cursive;
-    font-size: clamp(36px, 7.5vw, 72px);
-    color: var(--rust-light);
-    text-shadow: 5px 5px 0 #3a1005, 0 0 50px var(--glow);
-    text-align: center;
-    line-height: 1.2;
-    animation: titleBob 2s ease-in-out infinite;
-    letter-spacing: 4px;
-  }
+.game-title {
+font-family: ‘Bungee Shade’, cursive;
+font-size: clamp(36px, 7.5vw, 72px);
+color: var(–rust-light);
+text-shadow: 5px 5px 0 #3a1005, 0 0 50px var(–glow);
+text-align: center;
+line-height: 1.2;
+animation: titleBob 2s ease-in-out infinite;
+letter-spacing: 4px;
+}
 
-  .emoji-bird {
-    font-size: clamp(50px, 9vw, 90px);
-    animation: titleBob 2s ease-in-out infinite reverse;
-    filter: drop-shadow(0 0 12px rgba(255,106,0,0.6));
-  }
+.emoji-bird {
+font-size: clamp(50px, 9vw, 90px);
+animation: titleBob 2s ease-in-out infinite reverse;
+filter: drop-shadow(0 0 12px rgba(255,106,0,0.6));
+}
 
-  @keyframes titleBob {
-    0%,100% { transform: translateY(0) rotate(-2deg); }
-    50% { transform: translateY(-14px) rotate(2deg); }
-  }
+@keyframes titleBob {
+0%,100% { transform: translateY(0) rotate(-2deg); }
+50% { transform: translateY(-14px) rotate(2deg); }
+}
 
-  .subtitle {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(10px, 1.8vw, 15px);
-    color: #8a8070;
-    text-align: center;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
+.subtitle {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: clamp(10px, 1.8vw, 15px);
+color: #8a8070;
+text-align: center;
+letter-spacing: 3px;
+text-transform: uppercase;
+}
 
-  .tap-prompt {
-    font-family: 'Bungee', cursive;
-    font-size: clamp(13px, 2.4vw, 20px);
-    color: var(--accent);
-    animation: blink 0.9s step-end infinite;
-    margin-top: 8px;
-    letter-spacing: 3px;
-  }
+.tap-prompt {
+font-family: ‘Bungee’, cursive;
+font-size: clamp(13px, 2.4vw, 20px);
+color: var(–accent);
+animation: blink 0.9s step-end infinite;
+margin-top: 8px;
+letter-spacing: 3px;
+}
 
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-  .best-score {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(10px, 1.8vw, 14px);
-    color: #c08060;
-    text-shadow: 1px 1px 0 #000;
-    letter-spacing: 2px;
-  }
+.best-score {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: clamp(10px, 1.8vw, 14px);
+color: #c08060;
+text-shadow: 1px 1px 0 #000;
+letter-spacing: 2px;
+}
 
-  #deathScreen {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 18px;
-    background: rgba(10,6,4,0.88);
-    backdrop-filter: blur(7px);
-    z-index: 25;
-    pointer-events: none;
-    transition: opacity 0.3s;
-  }
+#deathScreen {
+position: absolute;
+top: 0; left: 0; width: 100%; height: 100%;
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+gap: 18px;
+background: rgba(10,6,4,0.88);
+backdrop-filter: blur(7px);
+z-index: 25;
+pointer-events: none;
+transition: opacity 0.3s;
+}
 
-  #deathScreen.hidden { opacity: 0; pointer-events: none; }
+#deathScreen.hidden { opacity: 0; pointer-events: none; }
 
-  .death-title {
-    font-family: 'Bungee Shade', cursive;
-    font-size: clamp(24px, 5.5vw, 50px);
-    color: #cc3300;
-    text-shadow: 4px 4px 0 #500000, 0 0 40px rgba(200,50,0,0.9);
-    animation: shake 0.5s ease-out;
-    letter-spacing: 4px;
-  }
+.death-title {
+font-family: ‘Bungee Shade’, cursive;
+font-size: clamp(24px, 5.5vw, 50px);
+color: #cc3300;
+text-shadow: 4px 4px 0 #500000, 0 0 40px rgba(200,50,0,0.9);
+animation: shake 0.5s ease-out;
+letter-spacing: 4px;
+}
 
-  @keyframes shake {
-    0%,100%{transform:translateX(0)}
-    20%{transform:translateX(-14px)}
-    40%{transform:translateX(14px)}
-    60%{transform:translateX(-8px)}
-    80%{transform:translateX(8px)}
-  }
+@keyframes shake {
+0%,100%{transform:translateX(0)}
+20%{transform:translateX(-14px)}
+40%{transform:translateX(14px)}
+60%{transform:translateX(-8px)}
+80%{transform:translateX(8px)}
+}
 
-  .score-board {
-    background: rgba(20,14,8,0.85);
-    border: 3px solid var(--rust);
-    border-radius: 6px;
-    padding: 22px 44px;
-    text-align: center;
-    box-shadow: 0 0 24px rgba(181,69,27,0.5), inset 0 0 20px rgba(0,0,0,0.5);
-    position: relative;
-  }
+.score-board {
+background: rgba(20,14,8,0.85);
+border: 3px solid var(–rust);
+border-radius: 6px;
+padding: 22px 44px;
+text-align: center;
+box-shadow: 0 0 24px rgba(181,69,27,0.5), inset 0 0 20px rgba(0,0,0,0.5);
+position: relative;
+}
 
-  .score-board::before {
-    content: '';
-    position: absolute;
-    top: -3px; left: -3px; right: -3px; bottom: -3px;
-    border-radius: 6px;
-    background: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 4px,
-      rgba(181,69,27,0.08) 4px,
-      rgba(181,69,27,0.08) 8px
-    );
-    pointer-events: none;
-  }
+.score-board::before {
+content: ‘’;
+position: absolute;
+top: -3px; left: -3px; right: -3px; bottom: -3px;
+border-radius: 6px;
+background: repeating-linear-gradient(
+45deg,
+transparent,
+transparent 4px,
+rgba(181,69,27,0.08) 4px,
+rgba(181,69,27,0.08) 8px
+);
+pointer-events: none;
+}
 
-  .score-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(9px, 1.6vw, 12px);
-    color: #7a6050;
-    margin-bottom: 6px;
-    letter-spacing: 4px;
-  }
+.score-label {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: clamp(9px, 1.6vw, 12px);
+color: #7a6050;
+margin-bottom: 6px;
+letter-spacing: 4px;
+}
 
-  .score-val {
-    font-family: 'Bungee Shade', cursive;
-    font-size: clamp(22px, 4.5vw, 40px);
-    color: var(--accent);
-    text-shadow: 2px 2px 0 #000;
-  }
+.score-val {
+font-family: ‘Bungee Shade’, cursive;
+font-size: clamp(22px, 4.5vw, 40px);
+color: var(–accent);
+text-shadow: 2px 2px 0 #000;
+}
 
-  .score-best {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(9px, 1.6vw, 12px);
-    color: #c08060;
-    margin-top: 10px;
-    letter-spacing: 2px;
-  }
+.score-best {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: clamp(9px, 1.6vw, 12px);
+color: #c08060;
+margin-top: 10px;
+letter-spacing: 2px;
+}
 
-  .play-btn {
-    font-family: 'Bungee', cursive;
-    font-size: clamp(13px, 2.4vw, 20px);
-    background: linear-gradient(180deg, #c04010 0%, #802808 100%);
-    color: #ffe8d0;
-    border: 3px solid #e05020;
-    border-radius: 4px;
-    padding: 14px 36px;
-    cursor: pointer;
-    box-shadow: 0 6px 0 #401404, 0 0 20px var(--glow);
-    transition: transform 0.1s, box-shadow 0.1s;
-    pointer-events: all;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
+.play-btn {
+font-family: ‘Bungee’, cursive;
+font-size: clamp(13px, 2.4vw, 20px);
+background: linear-gradient(180deg, #c04010 0%, #802808 100%);
+color: #ffe8d0;
+border: 3px solid #e05020;
+border-radius: 4px;
+padding: 14px 36px;
+cursor: pointer;
+box-shadow: 0 6px 0 #401404, 0 0 20px var(–glow);
+transition: transform 0.1s, box-shadow 0.1s;
+pointer-events: all;
+letter-spacing: 3px;
+text-transform: uppercase;
+}
 
-  .play-btn:active {
-    transform: translateY(4px);
-    box-shadow: 0 2px 0 #401404;
-  }
+.play-btn:active {
+transform: translateY(4px);
+box-shadow: 0 2px 0 #401404;
+}
+
+/* ── Name Entry Screen ───────────────────────────────── */
+#nameScreen {
+position: absolute;
+top: 0; left: 0; width: 100%; height: 100%;
+display: none;
+flex-direction: column;
+align-items: center; justify-content: center;
+gap: 18px;
+background: rgba(8,5,2,0.92);
+backdrop-filter: blur(8px);
+z-index: 30;
+pointer-events: all;
+}
+
+.name-title {
+font-family: ‘Bungee Shade’, cursive;
+font-size: clamp(18px, 4vw, 36px);
+color: #ff6a00;
+text-shadow: 3px 3px 0 #401404, 0 0 30px rgba(255,106,0,0.7);
+letter-spacing: 3px;
+text-align: center;
+}
+
+.name-score-display {
+font-family: ‘Bungee’, cursive;
+font-size: clamp(28px, 6vw, 56px);
+color: #ffe8d0;
+text-shadow: 2px 2px 0 #000;
+}
+
+.name-label {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: clamp(9px, 1.6vw, 12px);
+color: #7a6050;
+letter-spacing: 4px;
+}
+
+#nameInput {
+font-family: ‘Bungee’, cursive;
+font-size: clamp(18px, 3.5vw, 28px);
+background: rgba(20,12,6,0.9);
+color: #ff9a50;
+border: 2px solid #c04010;
+border-radius: 4px;
+padding: 12px 20px;
+text-align: center;
+outline: none;
+width: min(280px, 70vw);
+letter-spacing: 4px;
+text-transform: uppercase;
+box-shadow: 0 0 16px rgba(255,106,0,0.3), inset 0 0 10px rgba(0,0,0,0.5);
+caret-color: #ff6a00;
+}
+
+#nameInput::placeholder {
+color: #4a3020;
+letter-spacing: 2px;
+}
+
+#nameInput:focus {
+border-color: #ff6a00;
+box-shadow: 0 0 24px rgba(255,106,0,0.5), inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.name-hint {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: clamp(8px, 1.4vw, 11px);
+color: #4a3828;
+letter-spacing: 2px;
+}
+
+/* ── Leaderboard Screen ──────────────────────────────── */
+#leaderboard {
+position: absolute;
+top: 0; left: 0; width: 100%; height: 100%;
+display: none;
+flex-direction: column;
+align-items: center; justify-content: center;
+gap: 14px;
+background: rgba(8,5,2,0.93);
+backdrop-filter: blur(8px);
+z-index: 28;
+pointer-events: all;
+padding: 20px;
+}
+
+.lb-title {
+font-family: ‘Bungee Shade’, cursive;
+font-size: clamp(20px, 4.5vw, 42px);
+color: #ff6a00;
+text-shadow: 3px 3px 0 #401404, 0 0 30px rgba(255,106,0,0.7);
+letter-spacing: 4px;
+margin-bottom: 4px;
+}
+
+.lb-table {
+width: min(420px, 88vw);
+border-collapse: collapse;
+}
+
+.lb-row {
+display: flex;
+align-items: center;
+padding: 8px 12px;
+border-bottom: 1px solid rgba(180,70,20,0.2);
+gap: 12px;
+position: relative;
+transition: background 0.2s;
+}
+
+.lb-row.lb-new {
+background: rgba(255,106,0,0.12);
+border: 1px solid rgba(255,106,0,0.4);
+border-radius: 4px;
+animation: newEntry 0.6s ease-out;
+}
+
+@keyframes newEntry {
+0% { transform: scaleX(0.8); opacity: 0; }
+100% { transform: scaleX(1); opacity: 1; }
+}
+
+.lb-rank {
+font-family: ‘Bungee’, cursive;
+font-size: clamp(10px, 2vw, 16px);
+color: #5a4030;
+width: 28px;
+text-align: center;
+flex-shrink: 0;
+}
+
+.lb-rank.gold   { color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.6); }
+.lb-rank.silver { color: #c0c0c0; }
+.lb-rank.bronze { color: #cd7f32; }
+
+.lb-name {
+font-family: ‘Bungee’, cursive;
+font-size: clamp(11px, 2.2vw, 18px);
+color: #d09070;
+flex: 1;
+letter-spacing: 2px;
+text-transform: uppercase;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+
+.lb-score {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: clamp(12px, 2.4vw, 20px);
+color: #ff9a50;
+font-weight: bold;
+flex-shrink: 0;
+}
+
+.lb-divider {
+width: min(420px, 88vw);
+height: 1px;
+background: linear-gradient(90deg, transparent, #c04010, transparent);
+margin: 2px 0;
+}
+
+.lb-empty {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: clamp(9px, 1.6vw, 13px);
+color: #3a2818;
+letter-spacing: 3px;
+padding: 20px;
+text-align: center;
+}
+
+.lb-btn-row {
+display: flex;
+gap: 12px;
+margin-top: 6px;
+}
+
+.lb-btn {
+font-family: ‘Bungee’, cursive;
+font-size: clamp(10px, 2vw, 15px);
+background: linear-gradient(180deg, #c04010 0%, #802808 100%);
+color: #ffe8d0;
+border: 2px solid #e05020;
+border-radius: 4px;
+padding: 10px 22px;
+cursor: pointer;
+box-shadow: 0 4px 0 #401404;
+letter-spacing: 2px;
+pointer-events: all;
+}
+
+.lb-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #401404; }
+.lb-btn.secondary {
+background: linear-gradient(180deg, #2a2018 0%, #181008 100%);
+border-color: #6a4020;
+box-shadow: 0 4px 0 #0a0804;
+}
 </style>
+
 </head>
 <body>
 <div id="gameWrapper">
@@ -244,7 +444,10 @@
     <div class="subtitle">⚙ Junkyard Edition ⚙</div>
     <div class="best-score" id="startBest">BEST: 0</div>
     <div class="tap-prompt">[ TAP TO FLY ]</div>
+    <button class="lb-btn secondary" id="startLbBtn" style="pointer-events:all;margin-top:4px;">🏆 LEADERBOARD</button>
   </div>
+
+  <!-- Death / Score Screen -->
 
   <div id="deathScreen" style="display:none">
     <div class="death-title">SCRAPPED!</div>
@@ -253,7 +456,37 @@
       <div class="score-val" id="finalScore">0</div>
       <div class="score-best" id="finalBest">BEST: 0</div>
     </div>
-    <button class="play-btn" id="retryBtn">↩ TRY AGAIN</button>
+    <div style="display:flex;gap:12px;margin-top:4px;">
+      <button class="play-btn" id="retryBtn">↩ RETRY</button>
+      <button class="play-btn" id="leaderboardBtn" style="background:linear-gradient(180deg,#2a2018,#181008);border-color:#6a4020;box-shadow:0 6px 0 #0a0804;">🏆 SCORES</button>
+    </div>
+  </div>
+
+  <!-- Name Entry Screen -->
+
+  <div id="nameScreen" style="display:none">
+    <div class="name-title">NEW HIGH SCORE!</div>
+    <div class="name-score-display" id="nameScoreDisplay">0</div>
+    <div class="name-label">ENTER YOUR NAME</div>
+    <input id="nameInput" type="text" maxlength="12" placeholder="YOUR NAME" autocomplete="off" autocorrect="off" spellcheck="false" />
+    <div class="name-hint">MAX 12 CHARACTERS</div>
+    <div style="display:flex;gap:12px;">
+      <button class="play-btn" id="nameSubmitBtn">✔ SUBMIT</button>
+      <button class="play-btn" id="nameSkipBtn" style="background:linear-gradient(180deg,#2a2018,#181008);border-color:#6a4020;box-shadow:0 6px 0 #0a0804;">✕ SKIP</button>
+    </div>
+  </div>
+
+  <!-- Leaderboard Screen -->
+
+  <div id="leaderboard">
+    <div class="lb-title">⚙ TOP SCRAPPERS ⚙</div>
+    <div class="lb-divider"></div>
+    <div id="lbList" style="width:min(420px,88vw);"></div>
+    <div class="lb-divider"></div>
+    <div class="lb-btn-row">
+      <button class="lb-btn" id="lbPlayBtn">↩ PLAY</button>
+      <button class="lb-btn secondary" id="lbClearBtn">🗑 CLEAR</button>
+    </div>
   </div>
 </div>
 
@@ -280,13 +513,23 @@ window.addEventListener('resize', () => {
   S = Math.min(W, H * 0.75) / REF_W;
 });
 
-const overlay = document.getElementById('overlay');
-const deathScreen = document.getElementById('deathScreen');
-const scoreEl = document.getElementById('score');
-const finalScoreEl = document.getElementById('finalScore');
-const finalBestEl = document.getElementById('finalBest');
-const startBestEl = document.getElementById('startBest');
-const retryBtn = document.getElementById('retryBtn');
+const overlay       = document.getElementById('overlay');
+const deathScreen   = document.getElementById('deathScreen');
+const nameScreen    = document.getElementById('nameScreen');
+const leaderboard   = document.getElementById('leaderboard');
+const scoreEl       = document.getElementById('score');
+const finalScoreEl  = document.getElementById('finalScore');
+const finalBestEl   = document.getElementById('finalBest');
+const startBestEl   = document.getElementById('startBest');
+const retryBtn      = document.getElementById('retryBtn');
+const leaderboardBtn= document.getElementById('leaderboardBtn');
+const nameInput     = document.getElementById('nameInput');
+const nameSubmitBtn = document.getElementById('nameSubmitBtn');
+const nameSkipBtn   = document.getElementById('nameSkipBtn');
+const nameScoreDisp = document.getElementById('nameScoreDisplay');
+const lbList        = document.getElementById('lbList');
+const lbPlayBtn     = document.getElementById('lbPlayBtn');
+const lbClearBtn    = document.getElementById('lbClearBtn');
 
 let state = 'menu';
 let score = 0;
@@ -420,8 +663,75 @@ function getBeamSpeed() {
   return (BEAM_SPEED_BASE + Math.min(score * 9, 200)) * S;
 }
 
+// ── Leaderboard (shared storage) ────────────────────────────────────────
+const LB_KEY = 'scrappy-leaderboard';
+const LB_MAX = 10;
+let pendingScore = 0;
+let newEntryIndex = -1;
+
+function loadLeaderboard() {
+  try { return JSON.parse(localStorage.getItem(LB_KEY) || "[]"); }
+  catch(e) { return []; }
+}
+
+function saveLeaderboard(entries) {
+  try { localStorage.setItem(LB_KEY, JSON.stringify(entries)); }
+  catch(e) {}
+}
+
+function submitScore(name) {
+  const entries = loadLeaderboard();
+  const clean = (name || 'ANON').trim().toUpperCase().slice(0,12) || 'ANON';
+  entries.push({ name: clean, score: pendingScore, date: Date.now() });
+  entries.sort((a,b) => b.score - a.score);
+  const trimmed = entries.slice(0, LB_MAX);
+  newEntryIndex = trimmed.findIndex(e => e.score === pendingScore && e.name === clean);
+  saveLeaderboard(trimmed);
+  return trimmed;
+}
+
+function renderLeaderboard(highlightIdx) {
+  const entries = loadLeaderboard();
+  lbList.innerHTML = '';
+  if (entries.length === 0) {
+    lbList.innerHTML = '<div class="lb-empty">NO SCORES YET — BE THE FIRST!</div>';
+    return;
+  }
+  entries.forEach((e, i) => {
+    const row = document.createElement('div');
+    row.className = 'lb-row' + (i === highlightIdx ? ' lb-new' : '');
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+    row.innerHTML =
+      '<span class="lb-rank ' + rankClass + '">' + (medal || '#'+(i+1)) + '</span>' +
+      '<span class="lb-name">' + e.name + '</span>' +
+      '<span class="lb-score">' + e.score + '</span>';
+    lbList.appendChild(row);
+  });
+}
+
+function showLeaderboard(highlight) {
+  deathScreen.style.display = 'none';
+  nameScreen.style.display = 'none';
+  renderLeaderboard(highlight !== undefined ? highlight : -1);
+  leaderboard.style.display = 'flex';
+}
+
+function hideLeaderboard() {
+  leaderboard.style.display = 'none';
+}
+
+// Check if score qualifies for leaderboard
+function isHighScore(s) {
+  if (s === 0) return false;
+  const entries = loadLeaderboard();
+  if (entries.length < LB_MAX) return true;
+  return s > entries[entries.length - 1].score;
+}
+
 function die() {
   state = 'dead';
+  pendingScore = score;
   if (score > best) {
     best = score;
     localStorage.setItem('scrappyBest', best);
@@ -429,11 +739,23 @@ function die() {
   finalScoreEl.textContent = score;
   finalBestEl.textContent = 'BEST: ' + best;
   startBestEl.textContent = 'BEST: ' + best;
-  deathScreen.style.display = 'flex';
+
+  // Check if score qualifies — show name entry or just death screen
+  if (isHighScore(score)) {
+    nameScoreDisp.textContent = score;
+    nameInput.value = '';
+    deathScreen.style.display = 'none';
+    nameScreen.style.display = 'flex';
+    setTimeout(() => nameInput.focus(), 300);
+  } else {
+    deathScreen.style.display = 'flex';
+  }
 }
 
 function reset() {
   deathScreen.style.display = 'none';
+  nameScreen.style.display = 'none';
+  leaderboard.style.display = 'none';
   state = 'playing';
   score = 0;
   scoreEl.textContent = '0';
@@ -520,209 +842,173 @@ function drawJunkSilhouettes() {
 }
 
 function drawGround() {
-  // Concrete/dirt base
+  // Base fill
   const grad = ctx.createLinearGradient(0, GROUND_Y, 0, H);
-  grad.addColorStop(0, '#3a3228');
+  grad.addColorStop(0,    '#3a3228');
   grad.addColorStop(0.15, '#2a2218');
-  grad.addColorStop(1, '#18140c');
+  grad.addColorStop(1,    '#18140c');
   ctx.fillStyle = grad;
   ctx.fillRect(0, GROUND_Y, W, GROUND_H);
 
-  // Ground surface line
+  // Surface edge
   ctx.fillStyle = '#4a3e2e';
-  ctx.fillRect(0, GROUND_Y, W, 6);
+  ctx.fillRect(0, GROUND_Y, W, Math.max(3, Math.round(6*S)));
 
-  // Ground debris: bolts, scrap bits
-  const step = 55;
-  const off = groundX % step;
-  for (let x = -step + off; x < W + step; x += step) {
-    // Random scrap on ground
-    const h2 = 4 + ((x * 7919) % 12);
-    const w2 = 8 + ((x * 3571) % 20);
-    ctx.fillStyle = `hsl(${20 + (x*13)%30}, 40%, 20%)`;
-    ctx.fillRect(x, GROUND_Y + 6, w2, h2);
+  // Scrolling debris — use canvas translate so items tile perfectly
+  const step = Math.round(60 * S);
+  const off  = ((groundX % step) + step) % step; // always positive
+
+  ctx.save();
+  for (let x = off - step; x < W + step; x += step) {
+    // Deterministic sizing from fixed tile index
+    const ti  = Math.round((x - off) / step); // tile index
+    const seed = ((ti * 2654435761) >>> 0);
+    const w2  = Math.round((8 + (seed % 18)) * S);
+    const h2  = Math.round((4 + ((seed >> 4) % 10)) * S);
+    const hue = 20 + (seed % 24);
+
+    ctx.fillStyle = 'hsl(' + hue + ',38%,18%)';
+    ctx.fillRect(x, GROUND_Y + Math.round(7*S), w2, h2);
 
     // Bolt
+    const br = Math.max(2, Math.round(3.5*S));
     ctx.fillStyle = '#5a5040';
     ctx.beginPath();
-    ctx.arc(x + w2 + 8, GROUND_Y + 10, 4, 0, Math.PI*2);
+    ctx.arc(x + w2 + Math.round(8*S), GROUND_Y + Math.round(11*S), br, 0, Math.PI*2);
     ctx.fill();
   }
+  ctx.restore();
 
-  // Oil stains
-  for (let x = -80 + (groundX*0.3 % 200); x < W + 100; x += 200) {
-    ctx.save();
-    ctx.globalAlpha = 0.18;
-    const og = ctx.createRadialGradient(x, GROUND_Y + 30, 0, x, GROUND_Y + 30, 50);
+  // Oil stains — also keyed to tile index so no drift
+  const oStep = Math.round(180 * S);
+  const oOff  = ((groundX % oStep) + oStep) % oStep;
+  ctx.save();
+  for (let x = oOff - oStep; x < W + oStep; x += oStep) {
+    ctx.globalAlpha = 0.15;
+    const og = ctx.createRadialGradient(x, GROUND_Y + Math.round(28*S), 0,
+                                         x, GROUND_Y + Math.round(28*S), Math.round(50*S));
     og.addColorStop(0, '#000000');
     og.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = og;
     ctx.beginPath();
-    ctx.ellipse(x, GROUND_Y + 25, 55, 20, 0, 0, Math.PI*2);
+    ctx.ellipse(x, GROUND_Y + Math.round(22*S), Math.round(50*S), Math.round(18*S), 0, 0, Math.PI*2);
     ctx.fill();
-    ctx.restore();
   }
+  ctx.restore();
 }
 
-// Draw a structural steel I-beam obstacle
-// Viewed from front: wide flanges top & bottom, thin web connecting them.
-// Oriented vertically as two beams — one hanging from ceiling, one rising from floor.
+// Draw rusted steel obstacle — original pipe-style with rust/steel skin
 function drawIBeam(beam, t) {
-  const cx = beam.x;
+  const x = beam.x;
   const topEndY   = beam.gapY;
   const botStartY = beam.gapY + BEAM_GAP;
   const rs = beam.rustSeed;
 
-  const FW     = Math.round(150 * S);  // flange width
-  const FH     = Math.round(20  * S);  // flange thickness
-  const WW     = Math.round(16  * S);  // web thickness
-  const halfFW = FW / 2;
-  const halfWW = WW / 2;
+  const PW  = Math.round(90  * S);   // pipe body width
+  const CAP = Math.round(24  * S);   // cap height
+  const CAPW = Math.round(PW + Math.round(20 * S)); // cap wider than body
+  const capX = x - CAPW / 2;
+  const pipeX = x - PW / 2;
 
-  // Blue-grey steel palette with rust
-  const webDark    = '#2a3840';
-  const webMid     = '#3e5668';
-  const webLight   = '#5a7a8e';
-  const webShine   = '#80a8bc';
-  const flDark     = '#222e38';
-  const flMid      = '#384e60';
-  const flLight    = '#506e80';
-  const flShine    = '#6e94a8';
-  const rustDark   = '#6a2808';
-  const rustMid    = '#a03818';
-  const rustLight  = '#c85828';
-
-  function drawFlange(fy) {
-    const fx = cx - halfFW;
-
-    // Face gradient: dark at edges, lighter in centre — convex plate look
-    const g = ctx.createLinearGradient(fx, 0, fx + FW, 0);
-    g.addColorStop(0,    flDark);
-    g.addColorStop(0.1,  flMid);
-    g.addColorStop(0.3,  flLight);
-    g.addColorStop(0.5,  flShine);
-    g.addColorStop(0.7,  flLight);
-    g.addColorStop(0.9,  flMid);
-    g.addColorStop(1,    flDark);
-    ctx.fillStyle = g;
-    ctx.fillRect(fx, fy, FW, FH);
-
-    // Top highlight edge
-    ctx.fillStyle = 'rgba(140,200,220,0.22)';
-    ctx.fillRect(fx, fy, FW, 3);
-
-    // Bottom shadow edge
-    ctx.fillStyle = 'rgba(0,0,0,0.32)';
-    ctx.fillRect(fx, fy + FH - 3, FW, 3);
-
-    // Rust patches
-    ctx.save();
-    ctx.globalAlpha = 0.5;
-    const patches = [
-      [fx + 12 + rs*18, fy + 3,  16, 7],
-      [fx + 65 + rs*14, fy + 6,  11, 5],
-      [fx + 108+ rs*10, fy + 2,  19, 8],
-    ];
-    for (const [px, py, prx, pry] of patches) {
-      ctx.fillStyle = rustDark;
-      ctx.beginPath(); ctx.ellipse(px, py+pry, prx, pry, 0,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = rustLight;
-      ctx.beginPath(); ctx.ellipse(px+4, py+3, prx*0.45, pry*0.45, 0,0,Math.PI*2); ctx.fill();
-    }
-    ctx.restore();
-
-    // Weld fillets — the curved junction where web meets flange
-    // Drawn as dark triangular fills on both sides of web
-    ctx.fillStyle = 'rgba(8,14,18,0.6)';
-    ctx.beginPath();
-    ctx.moveTo(cx - halfWW - 10, fy);
-    ctx.lineTo(cx - halfWW,      fy + FH);
-    ctx.lineTo(cx - halfWW,      fy);
-    ctx.closePath();
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(cx + halfWW + 10, fy);
-    ctx.lineTo(cx + halfWW,      fy + FH);
-    ctx.lineTo(cx + halfWW,      fy);
-    ctx.closePath();
-    ctx.fill();
-    // Same on underside
-    ctx.beginPath();
-    ctx.moveTo(cx - halfWW - 10, fy + FH);
-    ctx.lineTo(cx - halfWW,      fy);
-    ctx.lineTo(cx - halfWW,      fy + FH);
-    ctx.closePath();
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(cx + halfWW + 10, fy + FH);
-    ctx.lineTo(cx + halfWW,      fy);
-    ctx.lineTo(cx + halfWW,      fy + FH);
-    ctx.closePath();
-    ctx.fill();
+  function pipeBodyGrad(x1, x2) {
+    const g = ctx.createLinearGradient(x1, 0, x2, 0);
+    g.addColorStop(0,    '#2a1c0e');
+    g.addColorStop(0.12, '#6a3c1a');
+    g.addColorStop(0.35, '#9a5828');
+    g.addColorStop(0.5,  '#b06830');
+    g.addColorStop(0.65, '#8a4820');
+    g.addColorStop(0.88, '#5a3015');
+    g.addColorStop(1,    '#1e1208');
+    return g;
   }
 
-  function drawWeb(y1, y2) {
+  function capGrad(x1, x2) {
+    const g = ctx.createLinearGradient(x1, 0, x2, 0);
+    g.addColorStop(0,    '#221408');
+    g.addColorStop(0.1,  '#5a2e10');
+    g.addColorStop(0.3,  '#8a4820');
+    g.addColorStop(0.5,  '#a05828');
+    g.addColorStop(0.7,  '#7a3c18');
+    g.addColorStop(0.9,  '#4a2410');
+    g.addColorStop(1,    '#1a0e06');
+    return g;
+  }
+
+  function drawPipeSegment(y1, y2, isTop) {
     if (y2 - y1 < 1) return;
-    // Thin vertical plate — lit from left
-    const g = ctx.createLinearGradient(cx - halfWW, 0, cx + halfWW, 0);
-    g.addColorStop(0,   webDark);
-    g.addColorStop(0.2, webMid);
-    g.addColorStop(0.5, webLight);
-    g.addColorStop(0.8, webMid);
-    g.addColorStop(1,   webDark);
-    ctx.fillStyle = g;
-    ctx.fillRect(cx - halfWW, y1, WW, y2 - y1);
 
-    // Centre specular stripe
-    ctx.fillStyle = 'rgba(140,200,220,0.10)';
-    ctx.fillRect(cx - 3, y1, 6, y2 - y1);
+    // Body
+    ctx.fillStyle = pipeBodyGrad(pipeX, pipeX + PW);
+    ctx.fillRect(pipeX, y1, PW, y2 - y1);
 
-    // Left-edge bright line
-    ctx.fillStyle = 'rgba(140,200,220,0.18)';
-    ctx.fillRect(cx - halfWW, y1, 2, y2 - y1);
+    // Left edge highlight
+    ctx.fillStyle = 'rgba(220,150,80,0.18)';
+    ctx.fillRect(pipeX, y1, Math.max(2, Math.round(3*S)), y2 - y1);
 
-    // Rust drips running vertically
+    // Right edge shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(pipeX + PW - Math.max(2, Math.round(4*S)), y1, Math.max(2, Math.round(4*S)), y2 - y1);
+
+    // Rust streaks
     ctx.save();
-    ctx.globalAlpha = 0.38;
-    const d1x = cx - halfWW + 3 + (rs * 7 | 0);
-    const d2x = cx + 1       + (rs * 4 | 0);
-    const stride1 = 30 + (rs * 14 | 0);
-    const stride2 = 42 + (rs * 10 | 0);
-    for (let ry = y1 + 6; ry < y2 - 6; ry += stride1) {
-      ctx.fillStyle = rustMid;
-      ctx.fillRect(d1x, ry, 3, 14 + (rs*8|0));
-    }
-    for (let ry = y1 + 18; ry < y2 - 6; ry += stride2) {
-      ctx.fillStyle = rustDark;
-      ctx.fillRect(d2x, ry, 2, 10);
+    ctx.globalAlpha = 0.4;
+    const sx = pipeX + Math.round(8*S) + (rs * PW * 0.3 | 0);
+    const sx2 = pipeX + PW - Math.round(14*S) - (rs * PW * 0.2 | 0);
+    const strd = Math.round(20 * S) + (rs * Math.round(10*S) | 0);
+    for (let ry = y1; ry < y2; ry += strd) {
+      ctx.fillStyle = '#c05020';
+      ctx.fillRect(sx,  ry, Math.max(2, Math.round(3*S)), Math.round(12*S));
+      ctx.fillStyle = '#8a3010';
+      ctx.fillRect(sx2, ry + Math.round(4*S), Math.max(1, Math.round(2*S)), Math.round(9*S));
     }
     ctx.restore();
-  }
 
-  function drawSegment(y1, y2) {
-    if (y2 - y1 < 2) return;
+    // Cap (wider band at the gap-facing end)
+    const capY = isTop ? y2 - CAP : y1;
+    ctx.fillStyle = capGrad(capX, capX + CAPW);
+    ctx.fillRect(capX, capY, CAPW, CAP);
 
-    drawWeb(y1, y2);
+    // Cap top highlight
+    ctx.fillStyle = 'rgba(220,150,80,0.20)';
+    ctx.fillRect(capX, capY, CAPW, Math.max(2, Math.round(4*S)));
 
-    // Always draw a flange at the gap-facing end (terminal) and at the wall end (cap)
-    // Plus intermediate flanges every 160px
-    if (y2 === topEndY) {
-      // Top beam hanging from ceiling
-      drawFlange(y1);                    // cap at ceiling
-      for (let fy = y1 + FH + 160; fy < y2 - FH; fy += 160) drawFlange(fy);
-      drawFlange(y2 - FH);               // terminal at gap
-    } else {
-      // Bottom beam rising from ground
-      drawFlange(y1);                    // terminal at gap
-      for (let fy = y1 + FH + 160; fy < y2 - FH; fy += 160) drawFlange(fy);
-      drawFlange(y2 - FH);               // cap at ground
+    // Cap bottom shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.40)';
+    ctx.fillRect(capX, capY + CAP - Math.max(2, Math.round(4*S)), CAPW, Math.max(2, Math.round(4*S)));
+
+    // Cap left/right edge shadows
+    ctx.fillStyle = 'rgba(0,0,0,0.30)';
+    ctx.fillRect(capX, capY, Math.max(2, Math.round(4*S)), CAP);
+    ctx.fillRect(capX + CAPW - Math.max(2, Math.round(4*S)), capY, Math.max(2, Math.round(4*S)), CAP);
+
+    // Cap rust blotch
+    ctx.save();
+    ctx.globalAlpha = 0.45;
+    ctx.fillStyle = '#a04018';
+    ctx.beginPath();
+    ctx.ellipse(capX + CAPW * (0.25 + rs * 0.2), capY + CAP * 0.5, Math.round(14*S), Math.round(5*S), 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#d06028';
+    ctx.beginPath();
+    ctx.ellipse(capX + CAPW * (0.55 + rs * 0.15), capY + CAP * 0.4, Math.round(9*S), Math.round(3*S), 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // Rivets on cap
+    const rv = Math.max(3, Math.round(5*S));
+    const boltY = capY + CAP / 2;
+    const boltXs = [capX + Math.round(16*S), capX + CAPW - Math.round(16*S)];
+    ctx.fillStyle = '#3a2010';
+    for (const bx of boltXs) {
+      ctx.beginPath(); ctx.arc(bx, boltY, rv, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#6a4020'; ctx.lineWidth = Math.max(1, Math.round(1.5*S));
+      ctx.beginPath(); ctx.arc(bx, boltY, rv, 0, Math.PI*2); ctx.stroke();
     }
   }
 
-  drawSegment(0, topEndY);
-  drawSegment(botStartY, GROUND_Y);
+  drawPipeSegment(0, topEndY, true);
+  drawPipeSegment(botStartY, GROUND_Y, false);
 }
-
 // Draw the scrappy crow bird
 function drawBird(t) {
   const bx = bird.x, by = bird.y;
@@ -877,7 +1163,7 @@ function drawParticles() {
 function collides(beam) {
   const bx = bird.x, by = bird.y, br = bird.r;
   // Use flange width (160) for collision — matches visual
-  const halfFW = Math.round(75 * S);
+  const halfFW = Math.round(55 * S);  // half of cap width (110*S / 2)
   if (bx + br < beam.x - halfFW || bx - br > beam.x + halfFW) return false;
   const topEndY = beam.gapY;
   const botStartY = beam.gapY + BEAM_GAP;
@@ -909,6 +1195,8 @@ function update(dt, t) {
   if (bird.y - bird.r <= 0) { bird.y = bird.r; bird.vy = 0; }
 
   groundX -= getBeamSpeed() * dt;
+  // Keep groundX bounded so modulo stays clean — prevents glitching
+  if (groundX < -10000) groundX += 10000;
 
   // Smoke drift
   for (const s of smokes) {
@@ -927,14 +1215,14 @@ function update(dt, t) {
 
   for (const beam of beams) {
     beam.x -= speed * dt;
-    if (!beam.passed && beam.x + Math.round(FLANGE_W * S / 2) < bird.x) {
+    if (!beam.passed && beam.x + Math.round(55 * S) < bird.x) {
       beam.passed = true;
       score++;
       scoreEl.textContent = score;
     }
     if (collides(beam)) { die(); return; }
   }
-  beams = beams.filter(b => b.x > -(FLANGE_W * S) - 20);
+  beams = beams.filter(b => b.x > -(110 * S) - 20);
 }
 
 function draw(t) {
@@ -966,6 +1254,7 @@ function idleLoop(ts) {
     bird.y = H / 2 + Math.sin(t * 1.8) * 22;
     bird.angle = Math.sin(t * 1.8) * 0.1;
     groundX -= 50 * dt;
+    if (groundX < -10000) groundX += 10000;
     for (const s of smokes) {
       s.x += s.drift * dt;
       s.y -= s.speed * dt * 0.3;
@@ -999,6 +1288,7 @@ document.addEventListener('pointerdown', e => {
   if (state !== 'dead') flap();
 });
 
+// Retry button
 retryBtn.addEventListener('pointerdown', e => {
   e.stopPropagation();
   reset();
@@ -1007,8 +1297,68 @@ retryBtn.addEventListener('pointerdown', e => {
   animFrame = requestAnimationFrame(loop);
 });
 
+// Show leaderboard from death screen
+leaderboardBtn.addEventListener('pointerdown', e => {
+  e.stopPropagation();
+  showLeaderboard();
+});
+
+// Name submit
+function doNameSubmit() {
+  const name = nameInput.value.trim() || 'ANON';
+  const entries = submitScore(name);
+  nameScreen.style.display = 'none';
+  showLeaderboard(newEntryIndex);
+}
+
+nameSubmitBtn.addEventListener('pointerdown', e => {
+  e.stopPropagation();
+  doNameSubmit();
+});
+
+nameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); doNameSubmit(); }
+});
+
+// Skip name entry — just show death screen
+nameSkipBtn.addEventListener('pointerdown', e => {
+  e.stopPropagation();
+  nameScreen.style.display = 'none';
+  deathScreen.style.display = 'flex';
+});
+
+// Leaderboard play button
+lbPlayBtn.addEventListener('pointerdown', e => {
+  e.stopPropagation();
+  leaderboard.style.display = 'none';
+  if (state === 'dead') {
+    // return to death screen
+    deathScreen.style.display = 'flex';
+  } else {
+    // return to menu
+    overlay.classList.remove('hidden');
+    startIdle();
+  }
+});
+
+// Start screen leaderboard button
+document.getElementById('startLbBtn').addEventListener('pointerdown', e => {
+  e.stopPropagation();
+  showLeaderboard();
+});
+
+// Clear leaderboard
+lbClearBtn.addEventListener('pointerdown', e => {
+  e.stopPropagation();
+  if (confirm('Clear all scores?')) {
+    localStorage.setItem("scrappy-leaderboard", "[]");
+    renderLeaderboard(-1);
+  }
+});
+
 startBestEl.textContent = 'BEST: ' + best;
 startIdle();
 </script>
+
 </body>
 </html>
