@@ -619,7 +619,7 @@ function rustColor(base, variation) {
 function flap() {
   if (state === 'menu') {
     state = 'playing';
-    overlay.classList.add('hidden');
+    overlay.style.display = 'none';
     beams = [];
     score = 0;
     scoreEl.textContent = '0';
@@ -1282,9 +1282,10 @@ function startIdle() {
 // ─── INPUT ───────────────────────────────────────────────────────────────────
 
 document.addEventListener('keydown', e => { if (e.code === 'Space') flap(); });
-
-document.addEventListener('keydown', e => { if (e.code === 'Space') flap(); });
 document.addEventListener('pointerdown', e => {
+  // Ignore taps that land on any interactive overlay element
+  const tag = e.target.tagName;
+  if (tag === 'BUTTON' || tag === 'INPUT') return;
   if (state !== 'dead') flap();
 });
 
@@ -1336,7 +1337,7 @@ lbPlayBtn.addEventListener('pointerdown', e => {
     deathScreen.style.display = 'flex';
   } else {
     // return to menu
-    overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
     startIdle();
   }
 });
