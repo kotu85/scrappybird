@@ -5,22 +5,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Scrappy Bird — Junkyard Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Bungee&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Bungee+Shade&family=Bungee&family=Share+Tech+Mono&display=swap');
-
-:root {
-–rust: #b5451b;
-–rust-dark: #7a2a08;
-–rust-light: #e06030;
-–steel: #5a6068;
-–steel-light: #8a9098;
-–grime: #2a2318;
-–smoke: #3a3830;
-–accent: #ff6a00;
-–glow: rgba(255,106,0,0.7);
-–score-color: #ffcc88;
-–grunge: #1a1710;
-}
+  :root {
+    --rust: #b5451b;
+    --rust-dark: #7a2a08;
+    --rust-light: #e06030;
+    --steel: #5a6068;
+    --steel-light: #8a9098;
+    --grime: #2a2318;
+    --smoke: #3a3830;
+    --accent: #ff6a00;
+    --glow: rgba(255,106,0,0.7);
+    --score-color: #ffcc88;
+    --grunge: #1a1710;
+  }
 
 - { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -28,7 +29,7 @@ html, body {
 width: 100%; height: 100%;
 background: #0a0a08;
 margin: 0; padding: 0;
-font-family: ‘Bungee’, monospace;
+font-family: ‘Bungee’, impact, sans-serif;
 overflow: hidden;
 touch-action: none;
 padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
@@ -59,7 +60,7 @@ pointer-events: none;
 position: absolute;
 top: 36px; left: 50%;
 transform: translateX(-50%);
-font-family: ‘Bungee Shade’, cursive;
+font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
 font-size: clamp(30px, 5.5vw, 52px);
 color: var(–accent);
 text-shadow: 3px 3px 0 #000, 0 0 24px var(–glow);
@@ -83,7 +84,7 @@ transition: opacity 0.4s;
 #overlay.hidden { opacity: 0; pointer-events: none; }
 
 .game-title {
-font-family: ‘Bungee Shade’, cursive;
+font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
 font-size: clamp(36px, 7.5vw, 72px);
 color: var(–rust-light);
 text-shadow: 5px 5px 0 #3a1005, 0 0 50px var(–glow);
@@ -105,7 +106,7 @@ filter: drop-shadow(0 0 12px rgba(255,106,0,0.6));
 }
 
 .subtitle {
-font-family: ‘Share Tech Mono’, monospace;
+font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
 font-size: clamp(10px, 1.8vw, 15px);
 color: #8a8070;
 text-align: center;
@@ -114,7 +115,7 @@ text-transform: uppercase;
 }
 
 .tap-prompt {
-font-family: ‘Bungee’, cursive;
+font-family: ‘Bungee’, impact, sans-serif;
 font-size: clamp(13px, 2.4vw, 20px);
 color: var(–accent);
 animation: blink 0.9s step-end infinite;
@@ -125,7 +126,7 @@ letter-spacing: 3px;
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
 .best-score {
-font-family: ‘Share Tech Mono’, monospace;
+font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
 font-size: clamp(10px, 1.8vw, 14px);
 color: #c08060;
 text-shadow: 1px 1px 0 #000;
@@ -148,7 +149,7 @@ transition: opacity 0.3s;
 #deathScreen.hidden { opacity: 0; pointer-events: none; }
 
 .death-title {
-font-family: ‘Bungee Shade’, cursive;
+font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
 font-size: clamp(24px, 5.5vw, 50px);
 color: #cc3300;
 text-shadow: 4px 4px 0 #500000, 0 0 40px rgba(200,50,0,0.9);
@@ -190,7 +191,7 @@ pointer-events: none;
 }
 
 .score-label {
-font-family: ‘Share Tech Mono’, monospace;
+font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
 font-size: clamp(9px, 1.6vw, 12px);
 color: #7a6050;
 margin-bottom: 6px;
@@ -198,14 +199,14 @@ letter-spacing: 4px;
 }
 
 .score-val {
-font-family: ‘Bungee Shade’, cursive;
+font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
 font-size: clamp(22px, 4.5vw, 40px);
 color: var(–accent);
 text-shadow: 2px 2px 0 #000;
 }
 
 .score-best {
-font-family: ‘Share Tech Mono’, monospace;
+font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
 font-size: clamp(9px, 1.6vw, 12px);
 color: #c08060;
 margin-top: 10px;
@@ -213,7 +214,7 @@ letter-spacing: 2px;
 }
 
 .play-btn {
-font-family: ‘Bungee’, cursive;
+font-family: ‘Bungee’, impact, sans-serif;
 font-size: clamp(13px, 2.4vw, 20px);
 background: linear-gradient(180deg, #c04010 0%, #802808 100%);
 color: #ffe8d0;
@@ -248,7 +249,7 @@ pointer-events: all;
 }
 
 .name-title {
-font-family: ‘Bungee Shade’, cursive;
+font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
 font-size: clamp(18px, 4vw, 36px);
 color: #ff6a00;
 text-shadow: 3px 3px 0 #401404, 0 0 30px rgba(255,106,0,0.7);
@@ -257,21 +258,21 @@ text-align: center;
 }
 
 .name-score-display {
-font-family: ‘Bungee’, cursive;
+font-family: ‘Bungee’, impact, sans-serif;
 font-size: clamp(28px, 6vw, 56px);
 color: #ffe8d0;
 text-shadow: 2px 2px 0 #000;
 }
 
 .name-label {
-font-family: ‘Share Tech Mono’, monospace;
+font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
 font-size: clamp(9px, 1.6vw, 12px);
 color: #7a6050;
 letter-spacing: 4px;
 }
 
 #nameInput {
-font-family: ‘Bungee’, cursive;
+font-family: ‘Bungee’, impact, sans-serif;
 font-size: clamp(18px, 3.5vw, 28px);
 background: rgba(20,12,6,0.9);
 color: #ff9a50;
@@ -298,7 +299,7 @@ box-shadow: 0 0 24px rgba(255,106,0,0.5), inset 0 0 10px rgba(0,0,0,0.5);
 }
 
 .name-hint {
-font-family: ‘Share Tech Mono’, monospace;
+font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
 font-size: clamp(8px, 1.4vw, 11px);
 color: #4a3828;
 letter-spacing: 2px;
@@ -320,7 +321,7 @@ padding: 20px;
 }
 
 .lb-title {
-font-family: ‘Bungee Shade’, cursive;
+font-family: ‘Bungee Shade’, ‘Bungee’, impact, sans-serif;
 font-size: clamp(20px, 4.5vw, 42px);
 color: #ff6a00;
 text-shadow: 3px 3px 0 #401404, 0 0 30px rgba(255,106,0,0.7);
@@ -356,7 +357,7 @@ animation: newEntry 0.6s ease-out;
 }
 
 .lb-rank {
-font-family: ‘Bungee’, cursive;
+font-family: ‘Bungee’, impact, sans-serif;
 font-size: clamp(10px, 2vw, 16px);
 color: #5a4030;
 width: 28px;
@@ -369,7 +370,7 @@ flex-shrink: 0;
 .lb-rank.bronze { color: #cd7f32; }
 
 .lb-name {
-font-family: ‘Bungee’, cursive;
+font-family: ‘Bungee’, impact, sans-serif;
 font-size: clamp(11px, 2.2vw, 18px);
 color: #d09070;
 flex: 1;
@@ -381,7 +382,7 @@ white-space: nowrap;
 }
 
 .lb-score {
-font-family: ‘Share Tech Mono’, monospace;
+font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
 font-size: clamp(12px, 2.4vw, 20px);
 color: #ff9a50;
 font-weight: bold;
@@ -396,7 +397,7 @@ margin: 2px 0;
 }
 
 .lb-empty {
-font-family: ‘Share Tech Mono’, monospace;
+font-family: ‘Share Tech Mono’, ‘Courier New’, monospace;
 font-size: clamp(9px, 1.6vw, 13px);
 color: #3a2818;
 letter-spacing: 3px;
@@ -411,7 +412,7 @@ margin-top: 6px;
 }
 
 .lb-btn {
-font-family: ‘Bungee’, cursive;
+font-family: ‘Bungee’, impact, sans-serif;
 font-size: clamp(10px, 2vw, 15px);
 background: linear-gradient(180deg, #c04010 0%, #802808 100%);
 color: #ffe8d0;
